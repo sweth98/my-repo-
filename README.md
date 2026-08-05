@@ -1,21 +1,63 @@
-# my-repo-
+# numstats
 
-## Description
+A small command-line tool that takes a list of numbers and prints basic
+descriptive statistics: mean, median, min, and max.
 
-_TODO: This repository does not yet contain any code. Add a short description of what the project does once the initial implementation is added._
+This project exists as a sandbox for practicing the Claude Code workflow —
+it's intentionally small and simple.
 
-## Setup / Installation
+## Installation
 
-_TODO: No dependency manifest (e.g. `package.json`, `requirements.txt`, `go.mod`, `Cargo.toml`) exists yet. Once the project's language and dependencies are established, document the installation steps here (e.g. `npm install`, `pip install -r requirements.txt`)._
+Requires Python 3.9+. From the repository root, create a virtual environment
+and install the package in editable mode along with its test dependency:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e . pytest
+```
+
+The `numstats` package itself has no runtime dependencies — only the
+standard library. `pytest` is only needed to run the test suite (see
+`requirements.txt`).
 
 ## Running Locally
 
-_TODO: Document the command(s) used to run the project locally once an entry point exists (e.g. `npm run dev`, `python main.py`)._
+Once installed, use the `numstats` console script:
+
+```bash
+numstats 4 8 15 16 23 42
+```
+
+```
+count:  6
+mean:   18.0
+median: 15.5
+min:    4.0
+max:    42.0
+```
+
+You can also run it without installing, as a module:
+
+```bash
+python -m numstats.cli 4 8 15 16 23 42
+```
 
 ## Running Tests
 
-_TODO: No test suite exists yet. Once tests are added, document how to run them here (e.g. `npm test`, `pytest`)._
+```bash
+pytest
+```
 
 ## Project Structure
 
-_TODO: Document the project layout once it is established._
+```
+numstats/
+    __init__.py     # package marker
+    stats.py         # mean / median / min / max functions
+    cli.py           # argument parsing and CLI entry point (numstats.cli:main)
+tests/
+    test_stats.py    # unit tests for numstats/stats.py
+pyproject.toml       # package metadata and the `numstats` console script
+requirements.txt     # test dependency (pytest); package itself is stdlib-only
+```

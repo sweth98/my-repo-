@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "numstats"
+version = "0.1.0"
+description = "A small CLI that prints basic statistics for a list of numbers"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+numstats = "numstats.cli:main"
+
+[tool.setuptools]
+packages = ["numstats"]
