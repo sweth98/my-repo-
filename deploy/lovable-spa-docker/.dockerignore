@@ -1,0 +1,51 @@
+# Everything listed here is invisible to the build. This is a security control,
+# not an optimisation: without it, `COPY . .` pulls your .env secrets and your
+# full git history into an image layer, where `docker history` can read them
+# back out even though the final image doesn't show the files.
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+.supabase/
+
+# Version control - .git contains every secret you ever committed and removed
+.git
+.gitignore
+.github
+
+# Installed on the build host, reinstalled in the image from the lockfile
+node_modules
+.npm
+.pnpm-store
+
+# Build output - rebuilt inside the image; copying a stale one is how you ship
+# yesterday's bundle by accident
+dist
+dist-ssr
+build
+.vite
+*.local
+
+# Editor / OS noise
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+*.swp
+
+# Docs, tests and tooling that the runtime image has no use for
+README.md
+docs/
+coverage/
+.nyc_output
+*.log
+npm-debug.log*
+Dockerfile
+docker-compose*.yml
+.dockerignore
