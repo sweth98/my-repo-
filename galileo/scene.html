@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Galileo — Law of the Inclined Plane</title>
+    <style>
+      :root {
+        --amber: #e0a83c;
+        --cyan: #4fc3d9;
+        --ink: #eef2f6;
+        --muted: #9aa4b0;
+      }
+      * { box-sizing: border-box; margin: 0; }
+      html, body { width: 1280px; height: 720px; overflow: hidden; background: #0b0d10; }
+      body {
+        font-family: ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+        color: var(--ink);
+      }
+      canvas { display: block; }
+      #hud { position: absolute; inset: 0; pointer-events: none; }
+
+      .title-card {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        text-align: center;
+        background: radial-gradient(ellipse at center, rgba(11,13,16,.55), rgba(11,13,16,.9));
+      }
+      .title-card h1 {
+        font-size: 52px; font-weight: 200; letter-spacing: -0.02em;
+      }
+      .title-card .rule {
+        width: 120px; height: 1px; background: var(--amber); margin: 22px 0;
+      }
+      .title-card p { font-size: 19px; color: var(--muted); font-weight: 300; max-width: 620px; line-height: 1.6; }
+
+      .caption {
+        position: absolute; left: 48px; top: 42px; max-width: 395px;
+      }
+      .caption .kicker {
+        font-size: 12px; letter-spacing: .28em; color: var(--amber);
+        text-transform: uppercase; margin-bottom: 12px;
+      }
+      .caption h2 { font-size: 28px; font-weight: 250; letter-spacing: -.01em; line-height: 1.25; }
+      .caption p { margin-top: 12px; font-size: 15px; line-height: 1.6; color: var(--muted); font-weight: 300; }
+
+      .readout {
+        position: absolute; right: 48px; top: 42px;
+        display: grid; grid-template-columns: auto auto; gap: 6px 18px;
+        font-variant-numeric: tabular-nums; text-align: right;
+      }
+      .readout .k { font-size: 12px; letter-spacing: .18em; color: var(--muted); align-self: end; }
+      .readout .v { font-size: 26px; font-weight: 300; }
+      .readout .v small { font-size: 14px; color: var(--muted); margin-left: 3px; }
+
+      table.data {
+        position: absolute; right: 48px; top: 190px;
+        border-collapse: collapse; font-variant-numeric: tabular-nums;
+      }
+      table.data th {
+        font-size: 11px; letter-spacing: .18em; color: var(--muted);
+        font-weight: 400; text-transform: uppercase;
+        padding: 0 16px 8px; text-align: right;
+      }
+      table.data td {
+        font-size: 20px; font-weight: 300; padding: 7px 16px;
+        text-align: right; border-top: 1px solid rgba(255,255,255,.09);
+      }
+      table.data td.hi { color: var(--amber); }
+      table.data td.cy { color: var(--cyan); }
+      table.data tr { transition: none; }
+
+      .equation {
+        position: absolute; left: 48px; bottom: 46px;
+        font-size: 30px; font-weight: 250; letter-spacing: .01em;
+      }
+      .equation sub, .equation sup { font-size: .58em; }
+      .equation .note { display: block; font-size: 13px; color: var(--muted); margin-top: 12px; letter-spacing: .02em; }
+
+      .footnote {
+        position: absolute; right: 48px; bottom: 46px; text-align: right;
+        font-size: 12px; line-height: 1.7; color: #6f7883; letter-spacing: .04em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="hud">
+      <div class="title-card" id="titleCard">
+        <h1>Galileo's Law of the Inclined Plane</h1>
+        <div class="rule"></div>
+        <p>A ball released from rest does not cover equal distance in equal time.
+           The distance grows as the <em>square</em> of the time.</p>
+      </div>
+
+      <div class="caption" id="caption">
+        <div class="kicker" id="kicker"></div>
+        <h2 id="capTitle"></h2>
+        <p id="capBody"></p>
+      </div>
+
+      <div class="readout" id="readout">
+        <div class="k">TIME</div><div class="v"><span id="rT">0.00</span><small>s</small></div>
+        <div class="k">DISTANCE</div><div class="v"><span id="rS">0.00</span><small>m</small></div>
+        <div class="k">SPEED</div><div class="v"><span id="rV">0.00</span><small>m/s</small></div>
+      </div>
+
+      <table class="data" id="table"></table>
+
+      <div class="equation" id="equation">
+        s = ½&thinsp;a&thinsp;t<sup>2</sup>
+        <span class="note" id="eqNote">a = (5/7)&thinsp;g&thinsp;sin&thinsp;&theta; = 2.00 m/s<sup>2</sup></span>
+      </div>
+
+      <div class="footnote" id="footnote">
+        Solid sphere, rolling without slipping<br />
+        incline &theta; = 16.6°&nbsp;&nbsp;·&nbsp;&nbsp;drag neglected
+      </div>
+    </div>
+
+    <script type="module">
+      import * as THREE from "./vendor/three.module.js";
+
+      // ---------------------------------------------------------------- setup
+      const W = 1280, H = 720;
+      const G = 9.81;
+      // Pin the acceleration at exactly 2 m/s^2 and derive the angle that
+      // produces it, rather than the other way round. A solid sphere rolling
+      // without slipping has a = (5/7) g sin(theta), so this is the honest
+      // inverse - and it makes s = t^2, giving exact gate distances of
+      // 1, 4, 9, 16 m instead of 1.0009, 4.0037, ...
+      const ACCEL = 2.0;
+      const THETA = Math.asin((7 * ACCEL) / (5 * G)); // 16.59 degrees
+      const RAMP_LEN = 16;                            // metres; 4 s of travel
+      const T_FALL = Math.sqrt(2 * RAMP_LEN / ACCEL); // exactly 4.0 s
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(W, H);
+      renderer.setPixelRatio(1);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.05;
+      document.body.insertBefore(renderer.domElement, document.getElementById("hud"));
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color("#0b0d10");
+      scene.fog = new THREE.Fog("#0b0d10", 30, 78);
+
+      const camera = new THREE.PerspectiveCamera(34, W / H, 0.1, 200);
+
+      // ------------------------------------------------------------- lighting
+      scene.add(new THREE.HemisphereLight("#8fb6d9", "#14171c", 0.55));
+
+      const key = new THREE.DirectionalLight("#fff4e2", 2.1);
+      key.position.set(9, 16, 11);
+      key.castShadow = true;
+      key.shadow.mapSize.set(2048, 2048);
+      key.shadow.camera.left = -18; key.shadow.camera.right = 18;
+      key.shadow.camera.top = 18; key.shadow.camera.bottom = -18;
+      key.shadow.camera.far = 60;
+      key.shadow.bias = -0.0008;
+      scene.add(key);
+
+      const rim = new THREE.DirectionalLight("#4fc3d9", 0.75);
+      rim.position.set(-12, 5, -9);
+      scene.add(rim);
+
+      // ----------------------------------------------------------------- floor
+      const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(140, 140),
+        new THREE.MeshStandardMaterial({ color: "#15181d", roughness: 0.96, metalness: 0 }),
+      );
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.y = -2.4;
+      floor.receiveShadow = true;
+      scene.add(floor);
+
+      const grid = new THREE.GridHelper(140, 70, "#243040", "#1a2029");
+      grid.position.y = -2.39;
+      grid.material.transparent = true;
+      grid.material.opacity = 0.5;
+      scene.add(grid);
+
+      // ------------------------------------------------------------------ ramp
+      // Local ramp space: +X runs down the slope from x=0 (top) to x=RAMP_LEN,
+      // and y=0 is the rolling surface. Rotating the group by -THETA about Z
+      // tilts that axis downhill, so everything inside can be positioned by
+      // distance-along-the-slope alone.
+      const ramp = new THREE.Group();
+      ramp.rotation.z = -THETA;
+      ramp.position.set(-8 * Math.cos(THETA), 8 * Math.sin(THETA) + 0.6, 0);
+      scene.add(ramp);
+
+      const DECK_W = 3.2, DECK_T = 0.35, RUNOUT = 1.4;
+      const deck = new THREE.Mesh(
+        new THREE.BoxGeometry(RAMP_LEN + RUNOUT, DECK_T, DECK_W),
+        new THREE.MeshStandardMaterial({ color: "#3a424e", roughness: 0.72, metalness: 0.12 }),
+      );
+      deck.position.set((RAMP_LEN + RUNOUT) / 2 - 0.2, -DECK_T / 2, 0);
+      deck.castShadow = true; deck.receiveShadow = true;
+      ramp.add(deck);
+
+      // Side rails, echoing the grooved channel Galileo actually used.
+      for (const z of [-1, 1]) {
+        const rail = new THREE.Mesh(
+          new THREE.BoxGeometry(RAMP_LEN + RUNOUT, 0.22, 0.16),
+          new THREE.MeshStandardMaterial({ color: "#4d5563", roughness: 0.6, metalness: 0.25 }),
+        );
+        rail.position.set((RAMP_LEN + RUNOUT) / 2 - 0.2, 0.09, z * (DECK_W / 2 - 0.08));
+        rail.castShadow = true;
+        ramp.add(rail);
+      }
+
+      // --------------------------------------------------------------- labels
+      function makeLabel(text, color = "#eef2f6", size = 128, weight = 600) {
+        const c = document.createElement("canvas");
+        c.width = 512; c.height = 256;
+        const g = c.getContext("2d");
+        g.font = `${weight} ${size}px ui-sans-serif, system-ui, Helvetica, Arial`;
+        g.textAlign = "center"; g.textBaseline = "middle";
+        g.fillStyle = color;
+        g.fillText(text, 256, 128);
+        const tex = new THREE.CanvasTexture(c);
+        tex.anisotropy = 4;
+        const sp = new THREE.Sprite(
+          new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }),
+        );
+        sp.scale.set(2.4, 1.2, 1);
+        return sp;
+      }
+
+      // -------------------------------------------------------------- markers
+      // One gate per second of travel: s = t^2 gives 1, 4, 9, 16 m.
+      const MARK_T = [1, 2, 3, 4];
+      const MARK_S = MARK_T.map((t) => 0.5 * ACCEL * t * t);
+      const markers = MARK_S.map((s, i) => {
+        const g = new THREE.Group();
+        g.position.set(s, 0, 0);
+
+        const bar = new THREE.Mesh(
+          new THREE.BoxGeometry(0.09, 0.14, DECK_W + 0.12),
+          new THREE.MeshStandardMaterial({
+            color: "#e0a83c", emissive: "#e0a83c", emissiveIntensity: 0.55, roughness: 0.5,
+          }),
+        );
+        bar.position.y = 0.07;
+        bar.castShadow = true;
+        g.add(bar);
+
+        const post = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.045, 0.045, 1.5, 10),
+          new THREE.MeshStandardMaterial({ color: "#6b7482", roughness: 0.6 }),
+        );
+        post.position.set(0, 0.75, DECK_W / 2 + 0.18);
+        g.add(post);
+
+        const lab = makeLabel(`${MARK_S[i]} m`, "#f0d49a", 96);
+        lab.position.set(0, 1.9, DECK_W / 2 + 0.18);
+        lab.scale.set(1.7, 0.85, 1);
+        g.add(lab);
+
+        const tlab = makeLabel(`t = ${MARK_T[i]}s`, "#8d99a6", 64);
+        tlab.position.set(0, 1.42, DECK_W / 2 + 0.18);
+        tlab.scale.set(1.5, 0.75, 1);
+        g.add(tlab);
+
+        ramp.add(g);
+        return { group: g, bar, lab, tlab, post, s };
+      });
+
+      // ------------------------------------------------- odd-number rule bands
+      // The gap between consecutive gates: 1, 3, 5, 7 - the odd numbers.
+      const bands = [];
+      let prev = 0;
+      MARK_S.forEach((s, i) => {
+        const len = s - prev, mid = (prev + s) / 2;
+        const band = new THREE.Mesh(
+          new THREE.BoxGeometry(len - 0.3, 0.04, DECK_W - 0.5),
+          new THREE.MeshStandardMaterial({
+            color: i % 2 ? "#3f9fb8" : "#4fc3d9",
+            emissive: i % 2 ? "#3f9fb8" : "#4fc3d9",
+            emissiveIntensity: i % 2 ? 0.5 : 0.8,
+            transparent: true, opacity: 0,
+          }),
+        );
+        band.position.set(mid, 0.03, 0);
+        ramp.add(band);
+
+        const lab = makeLabel(`${2 * i + 1}`, "#9fe4f2", 120);
+        lab.position.set(mid, 0.34, 0);
+        lab.scale.set(1.9, 0.95, 1);
+        lab.material.opacity = 0;
+        ramp.add(lab);
+
+        bands.push({ band, lab });
+        prev = s;
+      });
+
+      // ------------------------------------------------------------------ balls
+      function makeBall(radius, color) {
+        const m = new THREE.Mesh(
+          new THREE.SphereGeometry(radius, 48, 32),
+          new THREE.MeshStandardMaterial({ color, roughness: 0.28, metalness: 0.55 }),
+        );
+        m.castShadow = true;
+        // A meridian band so the rolling rotation is unmistakable.
+        const band = new THREE.Mesh(
+          new THREE.TorusGeometry(radius * 1.001, radius * 0.05, 8, 48),
+          new THREE.MeshStandardMaterial({ color: "#11151a", roughness: 0.5 }),
+        );
+        band.rotation.y = Math.PI / 2;
+        m.add(band);
+        ramp.add(m);
+        return m;
+      }
+
+      const R1 = 0.5;
+      const ball = makeBall(R1, "#dfe6ee");
+
+      // Act two: a heavier, larger sphere alongside the first. For a solid
+      // sphere a = (5/7) g sin(theta) - no mass, no radius. They tie.
+      const R2 = 0.8;
+      const ballA = makeBall(R1, "#dfe6ee");
+      const ballB = makeBall(R2, "#c98b3a");
+      ballA.visible = false; ballB.visible = false;
+
+      function placeBall(mesh, s, radius, z) {
+        mesh.position.set(s, radius, z);
+        mesh.rotation.z = -s / radius; // rolling without slipping
+      }
+
+      // ---------------------------------------------------------------- camera
+      // Framed side-on with a slight three-quarter offset, far enough back that
+      // the full 16 m of ramp plus the gate labels stay inside frame for the
+      // whole take - the distances are the subject, so nothing may crop.
+      const CAM_KEYS = [
+        { t: 0.0,  pos: [10.0, 10.5, 28.0], look: [0, 2.1, 0] },
+        { t: 3.0,  pos: [6.5, 8.0, 25.5],   look: [0, 1.7, 0] },
+        { t: 7.0,  pos: [5.5, 7.4, 24.6],   look: [0, 1.7, 0] },
+        { t: 11.6, pos: [3.6, 6.6, 23.2],   look: [0, 1.6, 0] },
+        { t: 14.6, pos: [4.6, 7.2, 24.2],   look: [0, 1.8, 0] },
+        { t: 19.8, pos: [7.5, 8.6, 26.0],   look: [0, 2.0, 0] },
+        { t: 22.0, pos: [9.5, 9.8, 27.4],   look: [0, 2.2, 0] },
+      ];
+
+      const smooth = (x) => x * x * (3 - 2 * x);
+      const clamp01 = (x) => Math.min(1, Math.max(0, x));
+      const ramp01 = (t, a, b) => clamp01((t - a) / (b - a));
+
+      function updateCamera(t) {
+        let i = 0;
+        while (i < CAM_KEYS.length - 2 && t > CAM_KEYS[i + 1].t) i++;
+        const a = CAM_KEYS[i], b = CAM_KEYS[i + 1];
+        const u = smooth(clamp01((t - a.t) / (b.t - a.t)));
+        camera.position.set(
+          a.pos[0] + (b.pos[0] - a.pos[0]) * u,
+          a.pos[1] + (b.pos[1] - a.pos[1]) * u,
+          a.pos[2] + (b.pos[2] - a.pos[2]) * u,
+        );
+        camera.lookAt(
+          a.look[0] + (b.look[0] - a.look[0]) * u,
+          a.look[1] + (b.look[1] - a.look[1]) * u,
+          a.look[2] + (b.look[2] - a.look[2]) * u,
+        );
+      }
+
+      // ------------------------------------------------------------------- HUD
+      const el = (id) => document.getElementById(id);
+      const els = {
+        title: el("titleCard"), caption: el("caption"), kicker: el("kicker"),
+        capTitle: el("capTitle"), capBody: el("capBody"), readout: el("readout"),
+        rT: el("rT"), rS: el("rS"), rV: el("rV"), table: el("table"),
+        equation: el("equation"), footnote: el("footnote"), eqNote: el("eqNote"),
+      };
+
+      function setCaption(kicker, title, body) {
+        if (els.kicker.textContent !== kicker) els.kicker.textContent = kicker;
+        if (els.capTitle.textContent !== title) els.capTitle.textContent = title;
+        if (els.capBody.textContent !== body) els.capBody.textContent = body;
+      }
+
+      function setTable(html) {
+        if (els.table.innerHTML !== html) els.table.innerHTML = html;
+      }
+
+      function squaresTable(rows) {
+        let h = "<tr><th>t (s)</th><th>s (m)</th><th></th></tr>";
+        for (let i = 0; i < rows; i++) {
+          h += `<tr><td>${MARK_T[i]}</td><td class="hi">${MARK_S[i]}</td>` +
+               `<td class="hi">${MARK_T[i]}&sup2;</td></tr>`;
+        }
+        return h;
+      }
+
+      function oddTable(rows) {
+        let h = "<tr><th>interval</th><th>gap (m)</th></tr>";
+        for (let i = 0; i < rows; i++) {
+          h += `<tr><td>${i === 0 ? 0 : MARK_T[i - 1]} &rarr; ${MARK_T[i]} s</td>` +
+               `<td class="cy">${2 * i + 1}</td></tr>`;
+        }
+        return h;
+      }
+
+      // -------------------------------------------------------------- timeline
+      const T_END = 22.0;
+
+      function setTime(t) {
+        updateCamera(t);
+
+        // --- title card ---------------------------------------------------
+        els.title.style.opacity = (1 - ramp01(t, 1.9, 2.6)).toFixed(3);
+
+        // --- default visibility -------------------------------------------
+        ball.visible = t < 14.6;
+        ballA.visible = ballB.visible = t >= 14.6;
+
+        let s = 0, v = 0, tau = 0;
+
+        if (t < 3.0) {
+          placeBall(ball, 0, R1, 0);
+        } else if (t < 14.6) {
+          tau = Math.min(t - 3.0, T_FALL);
+          s = 0.5 * ACCEL * tau * tau;
+          v = ACCEL * tau;
+          placeBall(ball, s, R1, 0);
+        }
+
+        // --- act two: two spheres, released together ----------------------
+        if (t >= 14.6) {
+          const tau2 = Math.min(Math.max(t - 15.6, 0), T_FALL);
+          const s2 = 0.5 * ACCEL * tau2 * tau2;
+          placeBall(ballA, s2, R1, -1.05);
+          placeBall(ballB, s2, R2, 1.05);
+          tau = tau2; s = s2; v = ACCEL * tau2;
+        }
+
+        // --- markers appear as the ball passes each gate -------------------
+        markers.forEach((m, i) => {
+          const revealAt = 3.0 + MARK_T[i];
+          const on = t >= 14.6 ? 1 : ramp01(t, revealAt, revealAt + 0.45);
+          m.group.visible = on > 0.01;
+          m.group.scale.setScalar(0.7 + 0.3 * on);
+          m.bar.material.emissiveIntensity = 0.35 + 0.9 * (1 - ramp01(t, revealAt, revealAt + 0.8));
+          [m.lab, m.tlab].forEach((sp) => (sp.material.opacity = on));
+        });
+
+        // --- odd-number bands ---------------------------------------------
+        bands.forEach((b, i) => {
+          const showAt = 11.9 + i * 0.5;
+          const on = ramp01(t, showAt, showAt + 0.45) * (1 - ramp01(t, 14.3, 14.7));
+          b.band.material.opacity = 0.62 * on;
+          b.lab.material.opacity = on;
+        });
+
+        // --- HUD ------------------------------------------------------------
+        els.rT.textContent = tau.toFixed(2);
+        els.rS.textContent = s.toFixed(2);
+        els.rV.textContent = v.toFixed(2);
+
+        const showReadout = t >= 2.6 && t < 19.8;
+        els.readout.style.opacity = showReadout ? "1" : "0";
+        els.equation.style.opacity = t >= 2.6 && t < 19.8 ? "1" : "0";
+        els.footnote.style.opacity = t >= 2.6 && t < 19.8 ? "1" : "0";
+
+        els.caption.style.opacity = t >= 2.6 && t < 19.8 ? "1" : "0";
+
+        if (t < 2.6) {
+          setTable("");
+        } else if (t < 7.0) {
+          setCaption("The experiment", "Release from rest",
+            "A gate is dropped at every second of travel. Watch the spacing between them.");
+          setTable("");
+        } else if (t < 9.2) {
+          setCaption("What the gates show", "Equal times, unequal distances",
+            "In 1, 2, 3 and 4 seconds the ball has covered 1, 4, 9 and 16 metres.");
+          setTable(squaresTable(Math.min(4, Math.floor(ramp01(t, 7.1, 8.9) * 4) + 1)));
+        } else if (t < 11.6) {
+          setCaption("Galileo's law", "Distance grows as the square of time",
+            "Each distance is exactly the square of the elapsed second. s is proportional to t².");
+          setTable(squaresTable(4));
+        } else if (t < 14.6) {
+          setCaption("The odd-number rule", "1 : 3 : 5 : 7",
+            "The distance covered in each successive second follows the odd numbers — the signature Galileo looked for.");
+          setTable(oddTable(Math.min(4, Math.floor(ramp01(t, 11.9, 14.0) * 4) + 1)));
+        } else if (t < 19.8) {
+          setCaption("Mass does not matter", "Two spheres, released together",
+            "For a rolling solid sphere the acceleration contains neither mass nor radius. They stay level.");
+          setTable("");
+        } else {
+          setTable("");
+        }
+
+        // --- outro card -----------------------------------------------------
+        // Swap the title card's contents once, on the way into the outro.
+        if (t >= 19.8) {
+          els.title.style.opacity = ramp01(t, 19.9, 20.5).toFixed(3);
+          if (!els.title.dataset.outro) {
+            els.title.dataset.outro = "1";
+            els.title.innerHTML =
+              '<h1 style="font-size:44px">s &prop; t<sup>2</sup></h1>' +
+              '<div class="rule"></div>' +
+              '<p>Distances in successive equal times stand as 1 : 3 : 5 : 7.<br/>' +
+              'Demonstrated on an inclined plane, c.&nbsp;1604.</p>';
+          }
+        }
+
+        renderer.render(scene, camera);
+      }
+
+      window.__setTime = setTime;
+      window.__meta = { T_END, ACCEL, T_FALL, RAMP_LEN };
+      setTime(0);
+      window.__ready = true;
+    </script>
+  </body>
+</html>

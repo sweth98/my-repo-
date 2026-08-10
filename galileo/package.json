@@ -1,0 +1,17 @@
+{
+  "name": "galileo-inclined-plane",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "mkdir -p vendor && cp node_modules/three/build/three.module.js node_modules/three/build/three.core.js vendor/",
+    "serve": "http-server . -p 4190 -s",
+    "capture": "node capture.mjs ./frames 30",
+    "encode": "ffmpeg -y -framerate 30 -i frames/%05d.png -c:v libx264 -preset slow -crf 19 -pix_fmt yuv420p -movflags +faststart galileo-inclined-plane.mp4"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "playwright": "1.56.1",
+    "three": "^0.180.0"
+  }
+}
