@@ -1,0 +1,15 @@
+<!--
+  PLACEHOLDER — light-on-dark variant. Replace with the official CanPlus asset.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 168 40" role="img" aria-label="CanPlus">
+  <g fill="none" stroke="#7392F7" stroke-width="3.2" stroke-linejoin="round">
+    <path d="M20 4.5 33.4 12.2v15.6L20 35.5 6.6 27.8V12.2z" opacity=".9"/>
+  </g>
+  <path d="M24.6 14.2a7.6 7.6 0 1 0 0 11.6" fill="none" stroke="#C3D0FC" stroke-width="3.4" stroke-linecap="round"/>
+  <g stroke="#B79BFA" stroke-width="2.8" stroke-linecap="round">
+    <path d="M26.6 15.4h5.6M29.4 12.6v5.6"/>
+  </g>
+  <text x="44" y="27.5" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.4">
+    <tspan fill="#FFFFFF">Can</tspan><tspan fill="#A9BEFB">Plus</tspan>
+  </text>
+</svg>
