@@ -1,0 +1,626 @@
+:root {
+  --bg: #08090b;
+  --surface: rgba(15, 18, 22, 0.66);
+  --ink: #eef1f4;
+  --muted: #878e97;
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.16);
+
+  /* Exactly two accents: a cool blue for the core, a warm amber for accents
+     and status. Everything else is greyscale. */
+  --accent: #5ea8d9;
+  --warm: #d9a441;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --pad: clamp(1.5rem, 5vw, 5rem);
+
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter,
+    sans-serif;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+p,
+ul {
+  margin: 0;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+/* ------------------------------------------------------------------ layers */
+
+/* The single WebGL canvas, fixed behind everything. pointer-events:none means
+   it never intercepts a click - all interaction is real DOM. */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* A CSS radial glow does the job of a bloom pass for none of the GPU cost. */
+.scene-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(120vh, 120vw);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(94, 168, 217, 0.16) 0%,
+    rgba(94, 168, 217, 0.05) 35%,
+    transparent 68%
+  );
+  filter: blur(20px);
+}
+
+/* Stand-in glow shown while the WebGL chunk loads, so the hero never appears
+   on a flat black background. */
+.scene-fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(94, 168, 217, 0.12) 0%,
+    transparent 60%
+  );
+}
+
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 88px 88px;
+  opacity: 0.35;
+  mask-image: radial-gradient(ellipse at center, #000 10%, transparent 72%);
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 45%,
+    rgba(8, 9, 11, 0.85) 100%
+  );
+}
+
+main {
+  position: relative;
+  z-index: 1;
+}
+
+/* ------------------------------------------------------------- typography */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.32em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--warm);
+  box-shadow: 0 0 0 0 rgba(217, 164, 65, 0.5);
+  animation: pulse 2.6s var(--ease) infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(217, 164, 65, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 9px rgba(217, 164, 65, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(217, 164, 65, 0);
+  }
+}
+
+.section-title {
+  font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  margin-top: 0.9rem;
+}
+
+/* ------------------------------------------------------------------- hero */
+
+.hero {
+  min-height: 100svh;
+  padding: var(--pad);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3rem;
+  /* Top and bottom blocks with the middle left open, so the orb sits in
+     clear space rather than behind the headline. */
+}
+
+.hero-top {
+  padding-top: clamp(1rem, 6vh, 4rem);
+  animation: rise 1s var(--ease) both;
+}
+
+.hero h1 {
+  margin-top: 1.6rem;
+  font-size: clamp(2rem, 5.4vw, 4.4rem);
+  font-weight: 200;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  /* Wide enough to keep "BUILDING WITH AI." on one line, narrow enough that
+     the orb - which sits right of centre on the hero - keeps clear space. */
+  max-width: 17ch;
+}
+
+.hero h1 span {
+  display: block;
+  color: var(--muted);
+}
+
+.hero-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-bottom: clamp(1rem, 4vh, 3rem);
+  animation: rise 1s 0.15s var(--ease) both;
+}
+
+.lede {
+  max-width: 46ch;
+  color: var(--muted);
+  font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+  line-height: 1.65;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+/* -------------------------------------------------------------------- cta */
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.95rem 1.6rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.74rem;
+  letter-spacing: 0.22em;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.02);
+  transition:
+    border-color 0.4s var(--ease),
+    background 0.4s var(--ease),
+    transform 0.4s var(--ease);
+}
+
+.cta:hover {
+  border-color: var(--accent);
+  background: rgba(94, 168, 217, 0.09);
+  transform: translateY(-2px);
+}
+
+.cta-arrow {
+  animation: nudge 2.4s var(--ease) infinite;
+}
+
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+.cta-solid {
+  border-color: var(--accent);
+  background: rgba(94, 168, 217, 0.12);
+}
+
+/* ------------------------------------------------------------------ stage */
+
+.stage {
+  position: relative;
+  min-height: 100svh;
+  padding: var(--pad);
+  display: flex;
+  justify-content: center;
+}
+
+.stage-hint {
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.8s var(--ease);
+}
+
+.stage.is-visible .stage-hint {
+  opacity: 1;
+}
+
+/* Full-viewport overlay whose children are positioned each frame from the 3D
+   projection. Nothing above it may use transform/filter, or `fixed` would
+   resolve against that ancestor instead of the viewport. */
+.node-labels {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.node {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: auto;
+  width: 15rem;
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  cursor: pointer;
+
+  background: var(--surface);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+
+  opacity: 0;
+  transition:
+    opacity 0.6s var(--ease),
+    border-color 0.4s var(--ease),
+    box-shadow 0.5s var(--ease),
+    background 0.4s var(--ease);
+}
+
+.stage.is-visible .node {
+  opacity: 1;
+}
+
+.node-index {
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  color: var(--warm);
+}
+
+.node-title {
+  font-size: 0.86rem;
+  letter-spacing: 0.14em;
+}
+
+/* The description stays collapsed until hover, keeping the ring uncluttered. */
+.node-tagline {
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--muted);
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.5s var(--ease),
+    opacity 0.4s var(--ease);
+}
+
+.node:hover,
+.node:focus-visible,
+.node.is-active {
+  border-color: rgba(94, 168, 217, 0.55);
+  background: rgba(20, 26, 32, 0.8);
+  box-shadow:
+    0 0 0 1px rgba(94, 168, 217, 0.12),
+    0 18px 50px -18px rgba(94, 168, 217, 0.45);
+  outline: none;
+}
+
+.node:hover .node-tagline,
+.node:focus-visible .node-tagline,
+.node.is-active .node-tagline {
+  max-height: 4rem;
+  opacity: 1;
+}
+
+.node.is-active .node-index {
+  color: var(--accent);
+}
+
+/* Scale on hover is applied to an inner-free element, so it must not clobber
+   the JS-written positioning transform - hence box-shadow and border carry the
+   emphasis here, while the 3D node itself scales. */
+
+/* -------------------------------------------------------------- info panel */
+
+.panel-wrap {
+  position: fixed;
+  z-index: 3;
+  right: clamp(1rem, 3vw, 3rem);
+  top: 50%;
+  width: min(23rem, calc(100vw - 2rem));
+  transform: translateY(-50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease);
+}
+
+.panel-wrap.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.panel {
+  padding: 1.6rem;
+  background: var(--surface);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid var(--line-strong);
+  border-radius: 20px;
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9);
+  transform: translateX(20px);
+  transition: transform 0.6s var(--ease);
+}
+
+.panel-wrap.is-open .panel {
+  transform: none;
+}
+
+.panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+}
+
+.panel-index {
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--warm);
+}
+
+.panel-close {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.7rem;
+  transition:
+    color 0.3s var(--ease),
+    border-color 0.3s var(--ease);
+}
+
+.panel-close:hover {
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+
+.panel h2 {
+  font-size: 1.35rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+.panel-tagline {
+  margin: 0.4rem 0 1.3rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.panel ul {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.panel li {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 0.85rem;
+  color: #cfd4da;
+  /* Staggered reveal, driven purely by CSS. */
+  animation: fade-in 0.5s var(--ease) both;
+}
+
+.panel li:nth-child(2) { animation-delay: 0.05s; }
+.panel li:nth-child(3) { animation-delay: 0.1s; }
+.panel li:nth-child(4) { animation-delay: 0.15s; }
+.panel li:nth-child(5) { animation-delay: 0.2s; }
+.panel li:nth-child(6) { animation-delay: 0.25s; }
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+}
+
+.tick {
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ------------------------------------------------------------------ tools */
+
+.tools {
+  padding: clamp(5rem, 14vh, 9rem) var(--pad);
+  /* Fades the orb out behind the lower sections so text stays readable. */
+  background: linear-gradient(180deg, transparent, var(--bg) 22%);
+}
+
+.tool-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 2.4rem;
+  max-width: 62rem;
+}
+
+.tool {
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: #c3c9d0;
+  background: rgba(255, 255, 255, 0.015);
+  transition:
+    border-color 0.35s var(--ease),
+    color 0.35s var(--ease),
+    transform 0.35s var(--ease);
+}
+
+.tool:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+  transform: translateY(-2px);
+}
+
+/* ----------------------------------------------------------------- footer */
+
+.footer {
+  padding: clamp(5rem, 16vh, 10rem) var(--pad) clamp(3rem, 8vh, 5rem);
+  text-align: center;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+}
+
+.footer h2 {
+  font-size: clamp(1.4rem, 4vw, 2.8rem);
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  max-width: 22ch;
+  margin: 0 auto 2.4rem;
+}
+
+.colophon {
+  margin-top: 3.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  color: #5d646d;
+}
+
+.dot-sep {
+  margin: 0 0.6rem;
+}
+
+/* ------------------------------------------------------- mobile / reduced */
+
+/* Below 860px the ring is abandoned for a static grid: five projected labels
+   cannot breathe on a narrow screen. The 3D scene stays, simplified. */
+.node-labels.is-grid {
+  position: static;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.8rem;
+  width: 100%;
+  max-width: 46rem;
+  margin: 4.5rem auto 0;
+  pointer-events: auto;
+}
+
+.node-labels.is-grid .node {
+  position: static;
+  width: auto;
+  transform: none !important;
+  opacity: 1;
+}
+
+.node-labels.is-grid .node-tagline {
+  max-height: 4rem;
+  opacity: 1;
+}
+
+@media (max-width: 860px) {
+  .stage {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .panel-wrap {
+    right: 1rem;
+    left: 1rem;
+    top: auto;
+    bottom: 1rem;
+    width: auto;
+    transform: none;
+  }
+
+  .panel {
+    transform: translateY(20px);
+    max-height: 70svh;
+    overflow-y: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
