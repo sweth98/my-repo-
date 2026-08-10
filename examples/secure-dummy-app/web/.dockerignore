@@ -1,0 +1,22 @@
+# Keeps secrets and history out of image layers. `docker history` can read back
+# anything that was ever COPYed in, even if a later step deletes it.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+.git
+.gitignore
+
+node_modules
+.npm
+
+dist
+.vite
+
+Dockerfile
+.dockerignore
+README.md
+*.log
+.DS_Store

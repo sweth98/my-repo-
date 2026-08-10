@@ -1,0 +1,22 @@
+# Keeps secrets and history out of image layers.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+.git
+.gitignore
+
+node_modules
+.npm
+
+# The smoke test is a development tool. It does not belong in the runtime
+# image - the Dockerfile only copies src/, but this makes the intent explicit.
+scripts/smoke-test.js
+
+Dockerfile
+.dockerignore
+README.md
+*.log
+.DS_Store

@@ -1,0 +1,21 @@
+{
+  "name": "secure-dummy-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "hash-password": "node scripts/hash-password.js",
+    "smoke": "node scripts/smoke-test.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.0",
+    "helmet": "^8.1.0",
+    "zod": "^4.1.12"
+  }
+}
