@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Solar System — Three.js</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #02030a;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  canvas { display: block; }
+  #overlay {
+    position: fixed;
+    top: 20px;
+    left: 24px;
+    color: #cfe6ff;
+    pointer-events: none;
+    user-select: none;
+  }
+  #overlay h1 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    background: linear-gradient(90deg, #ffd23f, #6fb1ff, #a06cff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  #overlay p {
+    margin: 6px 0 0;
+    font-size: 12px;
+    opacity: 0.7;
+    letter-spacing: 0.04em;
+  }
+  #label {
+    position: fixed;
+    padding: 4px 10px;
+    background: rgba(10, 14, 30, 0.75);
+    border: 1px solid rgba(120, 170, 255, 0.4);
+    border-radius: 6px;
+    color: #dff0ff;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+    transform: translate(-50%, -140%);
+    white-space: nowrap;
+    display: none;
+  }
+  #loading {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7fb2ff;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    background: #02030a;
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+<div id="overlay">
+  <h1>SOLAR SYSTEM</h1>
+  <p>drag to orbit · scroll to zoom · hover a planet to name it</p>
+</div>
+<div id="label"></div>
+<div id="loading">LOADING SCENE…</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/core/three.module.js",
+    "three/addons/": "./vendor/three/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x02030a);
+scene.fog = new THREE.FogExp2(0x02030a, 0.006);
+
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 500);
+camera.position.set(0, 20, 34);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+document.body.appendChild(renderer.domElement);
+document.getElementById("loading").remove();
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.target.set(0, 0, 0);
+controls.minDistance = 5;
+controls.maxDistance = 90;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.25;
+
+// ---------- Starfield ----------
+const starGeo = new THREE.BufferGeometry();
+const starCount = 3000;
+const starPos = new Float32Array(starCount * 3);
+for (let i = 0; i < starCount; i++) {
+  const r = 100 + Math.random() * 200;
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.acos(2 * Math.random() - 1);
+  starPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+  starPos[i * 3 + 1] = r * Math.cos(phi);
+  starPos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+}
+starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
+const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.35, sizeAttenuation: true });
+scene.add(new THREE.Points(starGeo, starMat));
+
+// ---------- Sun ----------
+const sunGeo = new THREE.SphereGeometry(2, 64, 64);
+const sunMat = new THREE.MeshBasicMaterial({ color: 0xffd23f });
+const sun = new THREE.Mesh(sunGeo, sunMat);
+sun.userData.label = "Sun";
+scene.add(sun);
+
+const coronaGeo = new THREE.SphereGeometry(2.3, 32, 32);
+const coronaMat = new THREE.MeshBasicMaterial({ color: 0xff8a1a, transparent: true, opacity: 0.25 });
+scene.add(new THREE.Mesh(coronaGeo, coronaMat));
+
+const sunLight = new THREE.PointLight(0xffe8b0, 90, 400, 1.4);
+scene.add(sunLight);
+scene.add(new THREE.AmbientLight(0x1a1a2e, 0.35));
+
+// ---------- Planets ----------
+// Distances/sizes are scaled for a clear, legible view rather than
+// true astronomical scale (which would make inner planets invisible).
+const planetData = [
+  { name: "Mercury", radius: 0.16, dist: 4.2,  color: 0x9c9c9c, rotSpeed: 0.02  },
+  { name: "Venus",   radius: 0.24, dist: 5.8,  color: 0xe8c39e, rotSpeed: 0.014 },
+  { name: "Earth",   radius: 0.26, dist: 7.6,  color: 0x2a6fdb, rotSpeed: 0.03, moon: true },
+  { name: "Mars",    radius: 0.2,  dist: 9.4,  color: 0xc1440e, rotSpeed: 0.028 },
+  { name: "Jupiter", radius: 0.95, dist: 13,   color: 0xd8ac6f, rotSpeed: 0.05  },
+  { name: "Saturn",  radius: 0.8,  dist: 17,   color: 0xead6a5, rotSpeed: 0.045, ring: true },
+  { name: "Uranus",  radius: 0.55, dist: 20.5, color: 0x9fe3e3, rotSpeed: 0.035 },
+  { name: "Neptune", radius: 0.53, dist: 23.5, color: 0x3f54ba, rotSpeed: 0.035 },
+  { name: "Pluto",   radius: 0.12, dist: 26,   color: 0xcbb89d, rotSpeed: 0.01  },
+];
+
+const planets = [];
+const hoverTargets = [sun];
+
+planetData.forEach((p) => {
+  // orbit path
+  const orbitPts = [];
+  for (let a = 0; a <= 160; a++) {
+    const ang = (a / 160) * Math.PI * 2;
+    orbitPts.push(new THREE.Vector3(Math.cos(ang) * p.dist, 0, Math.sin(ang) * p.dist));
+  }
+  const orbitGeo = new THREE.BufferGeometry().setFromPoints(orbitPts);
+  const orbitMat = new THREE.LineBasicMaterial({ color: 0x4a5a8a, transparent: true, opacity: 0.45 });
+  scene.add(new THREE.LineLoop(orbitGeo, orbitMat));
+
+  // planet
+  const geo = new THREE.SphereGeometry(p.radius, 32, 32);
+  const mat = new THREE.MeshStandardMaterial({ color: p.color, roughness: 0.75, metalness: 0.1 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.userData.label = p.name;
+  mesh.position.x = p.dist;
+
+  const pivot = new THREE.Object3D();
+  pivot.rotation.y = Math.random() * Math.PI * 2;
+  pivot.add(mesh);
+  scene.add(pivot);
+  hoverTargets.push(mesh);
+
+  if (p.ring) {
+    const ringGeo = new THREE.RingGeometry(p.radius * 1.4, p.radius * 2.3, 64);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xcdb98f, side: THREE.DoubleSide, transparent: true, opacity: 0.7 });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 2.2;
+    ring.position.x = p.dist;
+    pivot.add(ring);
+  }
+
+  let moon = null;
+  if (p.moon) {
+    const moonGeo = new THREE.SphereGeometry(p.radius * 0.27, 16, 16);
+    const moonMat = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, roughness: 0.9 });
+    moon = new THREE.Mesh(moonGeo, moonMat);
+    moon.position.x = p.radius * 2.4;
+    const moonPivot = new THREE.Object3D();
+    moonPivot.add(moon);
+    mesh.add(moonPivot);
+    moon.userData.moonPivot = moonPivot;
+  }
+
+  // Kepler-ish: farther planets orbit slower.
+  const speed = 0.7 / Math.sqrt(p.dist);
+  planets.push({ pivot, mesh, moon, speed, rotSpeed: p.rotSpeed, angle: pivot.rotation.y });
+});
+
+// ---------- Hover labels ----------
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+const labelEl = document.getElementById("label");
+
+window.addEventListener("pointermove", (e) => {
+  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(hoverTargets, false);
+  if (hits.length) {
+    const obj = hits[0].object;
+    labelEl.textContent = obj.userData.label;
+    labelEl.style.left = `${e.clientX}px`;
+    labelEl.style.top = `${e.clientY}px`;
+    labelEl.style.display = "block";
+  } else {
+    labelEl.style.display = "none";
+  }
+});
+
+// ---------- Bloom for the sun's glow ----------
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.9,
+  0.5,
+  0.2
+);
+composer.addPass(bloomPass);
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  sun.rotation.y += 0.0015;
+  planets.forEach((pl) => {
+    pl.angle += pl.speed * 0.01;
+    pl.pivot.rotation.y = pl.angle;
+    pl.mesh.rotation.y += pl.rotSpeed;
+    if (pl.moon) pl.moon.userData.moonPivot.rotation.y += 0.04;
+  });
+  controls.update();
+  composer.render();
+}
+animate();
+</script>
+</body>
+</html>
