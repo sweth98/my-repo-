@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HydroAura — Case Study · Swetha Tripathi</title>
+<meta name="description" content="Case study: HydroAura, a smart hydration and health tracking app designed around daily progress, community goals and accessible data visualization." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-nav">
+  <div class="container nav-inner">
+    <a href="../index.html#top" class="nav-mark">Swetha<span>.</span>Tripathi</a>
+    <nav aria-label="Primary">
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html#work">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#skills">Skills</a></li>
+        <li><a href="../index.html#experience">Experience</a></li>
+        <li><a href="../index.html#contact" class="nav-cta">Let's talk</a></li>
+      </ul>
+    </nav>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="cs-hero">
+    <div class="container">
+      <a class="cs-back" href="../index.html#work">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        Back to work
+      </a>
+      <span class="eyebrow">Mobile App · Health Tech Dashboard</span>
+      <h1 style="margin-top: var(--space-2);">HydroAura — making a daily habit visible, social and easy to read at a glance.</h1>
+      <p class="hero-sub">
+        A hydration and health-tracking app designed across four primary screens — Today,
+        History, Social and Settings — built around data visualization and habit-formation
+        rather than a single "log water" form.
+      </p>
+
+      <dl class="cs-meta-grid">
+        <div><dt>Role</dt><dd>UI/UX Designer (solo)</dd></div>
+        <div><dt>Platform</dt><dd>Mobile app</dd></div>
+        <div><dt>Tools</dt><dd>Figma</dd></div>
+        <div><dt>Scope</dt><dd>4 primary screens</dd></div>
+      </dl>
+
+      <div class="cs-hero-media reveal">
+        <div class="frame-fill" data-swap="../assets/hydroaura/cover-wide.png">
+          <div class="frame-blocks">
+            <div class="fb-bar"></div>
+            <div class="fb-card"></div>
+            <div class="fb-card"></div>
+          </div>
+          <span class="frame-label"><span class="dot"></span>Hero image placeholder — swap in real HydroAura export</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="cs-section">
+    <div class="container cs-two-col">
+      <div class="reveal">
+        <span class="cs-kicker">01 — The problem</span>
+        <h2>Hydration tracking is a habit app first, and a data app second.</h2>
+      </div>
+      <div class="reveal cs-body">
+        <p>
+          Most hydration trackers reduce to a single number — "how much water today" — which is
+          easy to design but hard to stay motivated by on its own. HydroAura needed to make daily
+          intake understandable at a glance (am I on track right now?), show progress over time
+          (is this actually becoming a habit?), and add a reason to keep coming back beyond the
+          number itself.
+        </p>
+        <p>
+          The interface targets a general, health-conscious mobile user who wants a quick daily
+          check-in rather than a detailed health-data dashboard — someone more likely to open
+          the app for ten seconds several times a day than for one long session.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GOALS -->
+  <section class="cs-section">
+    <div class="container">
+      <span class="cs-kicker reveal">02 — Design goals</span>
+      <h2 class="reveal">What the interface needed to accomplish</h2>
+      <ul class="goal-list reveal">
+        <li><strong>Make "am I on track" answerable in one glance.</strong> A large circular progress indicator on the Today screen shows current intake against goal without requiring any reading.</li>
+        <li><strong>Turn history into a pattern, not a log.</strong> A weekly bar chart with a temperature overlay on the History screen, rather than a plain list of past entries.</li>
+        <li><strong>Add a social layer without adding pressure.</strong> A Social/Circle tab shows friends' progress as supportive context, not a leaderboard.</li>
+        <li><strong>Let the user tune how the app nags them.</strong> Granular reminder and quiet-hours controls in Settings, so notifications support the habit instead of becoming a reason to disable them.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- USER FLOW -->
+  <section class="cs-section">
+    <div class="container">
+      <span class="cs-kicker reveal">03 — User flow</span>
+      <h2 class="reveal">Check in → log → see the pattern → stay accountable</h2>
+      <p class="reveal" style="color:var(--color-ink-soft); max-width:60ch;">
+        <em>Reconstructed from the final screens</em> — the four tabs read as a loop a user
+        returns to daily, rather than a single first-run flow.
+      </p>
+      <div class="flow-strip reveal">
+        <div class="flow-step"><span class="flow-idx">01</span>Today — check status</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-idx">02</span>Log intake (250 / 500 / custom)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-idx">03</span>History — review the week</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-idx">04</span>Social — compare with circle</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-idx">05</span>Settings — tune reminders</div>
+      </div>
+
+      <div class="screen-grid reveal">
+        <div class="screen-frame"><div class="frame-fill" data-swap="../assets/hydroaura/01-today.png"><span class="frame-label"><span class="dot"></span>01 · Today</span></div></div>
+        <div class="screen-frame"><div class="frame-fill" data-swap="../assets/hydroaura/02-history.png"><span class="frame-label"><span class="dot"></span>02 · History</span></div></div>
+        <div class="screen-frame"><div class="frame-fill" data-swap="../assets/hydroaura/03-social.png"><span class="frame-label"><span class="dot"></span>03 · Social</span></div></div>
+        <div class="screen-frame"><div class="frame-fill" data-swap="../assets/hydroaura/04-settings.png"><span class="frame-label"><span class="dot"></span>04 · Settings</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WIREFRAMES -->
+  <section class="cs-section">
+    <div class="container">
+      <span class="cs-kicker reveal">04 — From structure to UI</span>
+      <h2 class="reveal">Structuring the Today screen around one primary number</h2>
+      <div class="cs-two-col reveal">
+        <p>
+          The Today screen structure prioritises a single hero metric (current intake vs. goal)
+          above the fold, with logging actions directly beneath it — so the highest-frequency
+          action (adding water) never needs a scroll.
+        </p>
+        <div class="wire-compare">
+          <div class="wire-box" aria-hidden="true">
+            <div class="wb-block" style="height:70px; border-radius:50%; width:70px; margin: 0 auto 10px;"></div>
+            <div class="wb-block" style="height:30px; margin-bottom:8px;"></div>
+            <div class="wb-block" style="height:30px;"></div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="frame-fill" style="position:relative; aspect-ratio:4/3; border-radius: var(--radius-s); overflow:hidden;" data-swap="../assets/hydroaura/wireframe-vs-final.png">
+            <span class="frame-label"><span class="dot"></span>Final UI</span>
+          </div>
+        </div>
+        <p class="badge-note" style="margin-top:var(--space-3); display:block; width:fit-content;">Reconstructed wireframe based on the final interface</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESIGN DECISIONS -->
+  <section class="cs-section">
+    <div class="container">
+      <span class="cs-kicker reveal">05 — Design decisions</span>
+      <h2 class="reveal">Why the interface looks and behaves the way it does</h2>
+
+      <div class="decision-table reveal">
+        <div class="decision-row">
+          <div class="d-label">Typography</div>
+          <div class="d-body">
+            <p><b>What:</b> Large numerals for the hero metrics (intake volume, completion percentage) with clean, restrained labels underneath.</p>
+            <p><b>Why:</b> The core question on every screen is a number — "how much," "what percent," "which day." Making the number the loudest element on the screen, rather than the label around it, respects how quickly the app is meant to be read.</p>
+          </div>
+        </div>
+        <div class="decision-row">
+          <div class="d-label">Color</div>
+          <div class="d-body">
+            <p><b>What:</b> A cool blue as the dominant color (matching the water/hydration theme), with a warm accent used for streaks and weather-linked prompts, and neutral surface cards for structure.</p>
+            <div class="color-row">
+              <div class="color-chip"><div class="swatch" style="background:#2E5AAC"></div><span>Primary blue</span></div>
+              <div class="color-chip"><div class="swatch" style="background:#F5A623"></div><span>Streak / warmth</span></div>
+              <div class="color-chip"><div class="swatch" style="background:#F7F8FA"></div><span>Surface / cards</span></div>
+              <div class="color-chip"><div class="swatch" style="background:#1A1A1A"></div><span>Ink / text</span></div>
+            </div>
+            <p><b>Why:</b> Blue is a literal and emotional match for a hydration product — calm, clean, associated with water — while reserving a warmer accent for streaks and achievements keeps positive-reinforcement moments visually distinct from routine data.</p>
+          </div>
+        </div>
+        <div class="decision-row">
+          <div class="d-label">Layout</div>
+          <div class="d-body">
+            <p><b>What:</b> A consistent card-grid structure across all four tabs — stat cards, a hero metric, then a list/chart — with the same bottom tab bar throughout.</p>
+            <p><b>Why:</b> Keeping the same structural rhythm on every screen (hero stat → supporting cards → detail list) means a returning user doesn't have to relearn the layout each time they switch tabs; only the data changes.</p>
+          </div>
+        </div>
+        <div class="decision-row">
+          <div class="d-label">Components</div>
+          <div class="d-body">
+            <p><b>What:</b> Circular progress ring, weekly bar chart with a temperature line overlay, quick-add intake buttons (250ml / 500ml / custom), friend progress cards with mini progress bars, and a granular reminder-frequency slider.</p>
+            <p><b>Why:</b> Quick-add buttons cover the most common intake amounts in one tap, so logging never requires opening a form. The friend cards reuse the same progress-bar pattern as the personal dashboard, so the social layer reads as an extension of the same system rather than a separate feature.</p>
+          </div>
+        </div>
+        <div class="decision-row">
+          <div class="d-label">Interaction design</div>
+          <div class="d-body">
+            <p><b>What:</b> Contextual prompt cards (e.g. a "Morning Boost" suggestion, weather-linked reminders) that surface a suggested action rather than a generic notification.</p>
+            <p><b>Why:</b> A suggestion tied to time of day or weather feels like guidance rather than a generic push notification, which supports the habit-formation goal without adding pressure.</p>
+            <p class="badge-note">Potential improvement</p>
+            <p>The exact feedback moment when a daily goal is hit isn't shown in the static screens — a small celebratory state on the Today screen (beyond the notification card) would reinforce the habit loop more directly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESIGN SYSTEM -->
+  <section class="cs-section">
+    <div class="container">
+      <span class="cs-kicker reveal">06 — Mini design system</span>
+      <h2 class="reveal">The pieces that repeat across HydroAura</h2>
+      <div class="cs-two-col reveal">
+        <div>
+          <p><b>Typography scale</b></p>
+          <p style="margin-top:8px;">Hero numeral — intake volume, completion %<br/>
+          Section heading — "Weekly Flow", "Your Circle"<br/>
+          Body / caption — timestamps, tags, helper text</p>
+        </div>
+        <div>
+          <p><b>Components</b></p>
+          <p style="margin-top:8px;">Circular progress ring · Stat card (avg / hottest day) ·
+          Weekly bar chart · Friend progress card · Quick-add intake button ·
+          Reminder-frequency slider · Toggle switch · Bottom tab bar</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACCESSIBILITY -->
+  <section class="cs-section">
+    <div class="container cs-two-col">
+      <div class="reveal">
+        <span class="cs-kicker">07 — Accessibility</span>
+        <h2>Considerations built into the screens</h2>
+      </div>
+      <div class="reveal cs-body">
+        <p>
+          Progress and stats are shown as both a visual (ring, bar) and a number (ml, %, day
+          count), so the information doesn't rely on color or shape alone. Quick-add buttons and
+          toggle controls are sized for one-handed mobile use. Layouts were checked against
+          WCAG 2.1 contrast guidance and tested for responsive behaviour across device sizes.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEARNED -->
+  <section class="cs-section">
+    <div class="container">
+      <span class="cs-kicker reveal">08 — What I learned</span>
+      <h2 class="reveal">Reflection</h2>
+      <ul class="learn-list reveal">
+        <li>Designing four tabs that all needed to feel like "the same app" pushed me to build a repeatable card/hero-stat pattern early, rather than designing each screen independently and reconciling them afterward.</li>
+        <li>The social/circle feature was the hardest to get right — the line between "motivating" and "comparison pressure" is a design decision, not just a data decision, and it shows up in small choices like showing progress bars instead of ranked positions.</li>
+        <li>Next time, I'd design the goal-achieved moment explicitly as its own state, since habit apps live or die on how rewarding that specific moment feels.</li>
+      </ul>
+    </div>
+  </section>
+
+  <a class="cs-nextproject reveal" href="lumina.html">
+    <div>
+      <span class="np-label">Next case study</span>
+      <h3>Lumina — AI-Powered Learning Assistant</h3>
+    </div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </a>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container" style="display:flex; justify-content:space-between; width:100%; flex-wrap:wrap; gap: 12px;">
+    <span>© <span data-year>2026</span> Swetha Tripathi</span>
+    <span>Hyderabad, India · tripathiswetha7@gmail.com</span>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

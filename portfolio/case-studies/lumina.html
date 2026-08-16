@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lumina — Case Study · Swetha Tripathi</title>
+<meta name="description" content="Case study: Lumina, an AI-powered learning assistant app designed end-to-end across onboarding, chat tutoring and a level-based learning path." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-nav">
+  <div class="container nav-inner">
+    <a href="../index.html#top" class="nav-mark">Swetha<span>.</span>Tripathi</a>
+    <nav aria-label="Primary">
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html#work">Work</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="../index.html#skills">Skills</a></li>
+        <li><a href="../index.html#experience">Experience</a></li>
+        <li><a href="../index.html#contact" class="nav-cta">Let's talk</a></li>
+      </ul>
+    </nav>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="cs-hero">
+    <div class="container">
+      <a class="cs-back" href="../index.html#work">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+        Back to work
+      </a>
+      <span class="eyebrow">Mobile App · AI Product Design</span>
+      <h1 style="margin-top: var(--space-2);">Lumina — an AI learning assistant that adapts to how you're actually studying.</h1>
+      <p class="hero-sub">
+        An end-to-end UI/UX design for a mobile AI tutor: onboarding and sign-in, a conversational
+        chat tutor, and a level-based learning path that turns study progress into something
+        visible and motivating.
+      </p>
+
+      <dl class="cs-meta-grid">
+        <div><dt>Role</dt><dd>UI/UX Designer (solo)</dd></div>
+        <div><dt>Platform</dt><dd>Mobile app · iOS-style UI</dd></div>
+        <div><dt>Tools</dt><dd>Figma, Miro</dd></div>
+        <div><dt>Scope</dt><dd>6+ screens, end-to-end flow</dd></div>
+      </dl>
+
+      <div class="cs-hero-media reveal">
+        <div class="frame-fill" data-swap="../assets/lumina/cover-wide.png">
+          <div class="frame-blocks">
+            <div class="fb-bar"></div>
+            <div class="fb-card"></div>
+            <div class="fb-card"></div>
+          </div>
+          <span class="frame-label"><span class="dot"></span>Hero image placeholder — swap in real Lumina export</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="cs-section">
+    <div class="container cs-two-col">
+      <div class="reveal">
+        <span class="cs-kicker">01 — The problem</span>
+        <h2>Learning apps tend to either overwhelm learners with content, or under-structure it.</h2>
+      </div>
+      <div class="reveal cs-body">
+        <p>
+          Lumina is positioned as an "AI learning assistant" — a tutor a learner can talk to,
+          rather than a static course library. The interface needed to do two things at once:
+          feel approachable enough for a first-time user during onboarding, and organised
+          enough to hold a full curriculum of topics, levels and progress once someone is a
+          regular user.
+        </p>
+        <p>
+          The design needed to accommodate a learner who wants a quick answer to a specific
+          question (via chat) as well as one who wants a structured path to follow over
+          multiple sessions (via the level system) — without those two modes feeling like
+          two different products.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GOALS -->
+  <section class="cs-section">
+    <div class="container">
+      <span class="cs-kicker reveal">02 — Design goals</span>
+      <h2 class="reveal">What the interface needed to accomplish</h2>
+      <ul class="goal-list reveal">
+        <li><strong>Make first use effortless.</strong> A short, visual onboarding and a familiar sign-in pattern, so a new user reaches value in a few taps.</li>
+        <li><strong>Give structure to open-ended learning.</strong> A level-based path (Basics → Intermediate → Advanced Project) so progress has a visible shape, not just a chat log.</li>
+        <li><strong>Keep the AI tutor conversational, not clinical.</strong> A chat interface with contextual quick-replies, so asking a follow-up question feels as easy as texting.</li>
+        <li><strong>Surface progress and next steps on return visits.</strong> A home dashboard that greets the learner by name and immediately shows what to do next.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- USER FLOW -->
+  <section class="cs-section">
+    <div class="container">
+      <span class="cs-kicker reveal">03 — User flow</span>
+      <h2 class="reveal">Entry → onboarding → tutoring → tracked progress</h2>
+      <p class="reveal" style="color:var(--color-ink-soft); max-width:60ch;">
+        <em>Reconstructed from the final screens</em> — this reflects the flow implied by the
+        interface, not a separately documented flow diagram.
+      </p>
+      <div class="flow-strip reveal">
+        <div class="flow-step"><span class="flow-idx">01</span>Landing &amp; sign-in</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-idx">02</span>AI tutor intro carousel</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-idx">03</span>Level-based path</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-idx">04</span>Chat with AI tutor</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><span class="flow-idx">05</span>Home dashboard &amp; goals</div>
+      </div>
+
+      <div class="screen-grid reveal">
+        <div class="screen-frame"><div class="frame-fill" data-swap="../assets/lumina/01-landing.png"><span class="frame-label"><span class="dot"></span>01 · Landing</span></div></div>
+        <div class="screen-frame"><div class="frame-fill" data-swap="../assets/lumina/02-signin.png"><span class="frame-label"><span class="dot"></span>02 · Sign in</span></div></div>
+        <div class="screen-frame"><div class="frame-fill" data-swap="../assets/lumina/03-tutor-intro.png"><span class="frame-label"><span class="dot"></span>03 · Tutor intro</span></div></div>
+        <div class="screen-frame"><div class="frame-fill" data-swap="../assets/lumina/04-levels.png"><span class="frame-label"><span class="dot"></span>04 · Learning path</span></div></div>
+        <div class="screen-frame"><div class="frame-fill" data-swap="../assets/lumina/05-chat.png"><span class="frame-label"><span class="dot"></span>05 · AI chat</span></div></div>
+        <div class="screen-frame"><div class="frame-fill" data-swap="../assets/lumina/06-home.png"><span class="frame-label"><span class="dot"></span>06 · Home dashboard</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WIREFRAMES -->
+  <section class="cs-section">
+    <div class="container">
+      <span class="cs-kicker reveal">04 — From structure to UI</span>
+      <h2 class="reveal">Mapped in Miro before a single high-fidelity screen</h2>
+      <div class="cs-two-col reveal">
+        <p>
+          Flows and information architecture were mapped in Miro first — deciding what belonged
+          on the home dashboard versus the learning-path screen, and where the chat tutor should
+          sit relative to structured lessons — before moving into high-fidelity Figma prototypes.
+        </p>
+        <div class="wire-compare">
+          <div class="wire-box" aria-hidden="true">
+            <div class="wb-block" style="height:14px; width:60%; margin-bottom:10px;"></div>
+            <div class="wb-block" style="height:40px; margin-bottom:8px;"></div>
+            <div class="wb-block" style="height:40px; margin-bottom:8px;"></div>
+            <div class="wb-block" style="height:40px;"></div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="frame-fill" style="position:relative; aspect-ratio:4/3; border-radius: var(--radius-s); overflow:hidden;" data-swap="../assets/lumina/wireframe-vs-final.png">
+            <span class="frame-label"><span class="dot"></span>Final UI</span>
+          </div>
+        </div>
+        <p class="badge-note" style="margin-top:var(--space-3); display:block; width:fit-content;">Reconstructed wireframe based on the final interface</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESIGN DECISIONS -->
+  <section class="cs-section">
+    <div class="container">
+      <span class="cs-kicker reveal">05 — Design decisions</span>
+      <h2 class="reveal">Why the interface looks and behaves the way it does</h2>
+
+      <div class="decision-table reveal">
+        <div class="decision-row">
+          <div class="d-label">Typography</div>
+          <div class="d-body">
+            <p><b>What:</b> A confident, slightly rounded display face for headings ("Ignite Your Intelligence", level titles) paired with a compact sans for body copy and metadata.</p>
+            <p><b>Why:</b> Learning content is dense — level names, descriptions, percentages, timestamps. A clear size and weight hierarchy lets a learner scan a screen (what level am I on, what's my progress) without reading every line.</p>
+          </div>
+        </div>
+        <div class="decision-row">
+          <div class="d-label">Color</div>
+          <div class="d-body">
+            <p><b>What:</b> A single confident blue as the primary/brand color against a light, mostly white surface, with green used specifically for "unlocked / on-track" states and grey for locked content.</p>
+            <div class="color-row">
+              <div class="color-chip"><div class="swatch" style="background:#2E5AAC"></div><span>Primary blue</span></div>
+              <div class="color-chip"><div class="swatch" style="background:#1FA971"></div><span>Progress / unlocked</span></div>
+              <div class="color-chip"><div class="swatch" style="background:#F2F5FA"></div><span>Surface / cards</span></div>
+              <div class="color-chip"><div class="swatch" style="background:#8B93A1"></div><span>Locked / muted</span></div>
+            </div>
+            <p><b>Why:</b> Blue reads as trustworthy and calm rather than gamified — appropriate for a study tool used daily. Reserving color for status (locked vs. in-progress vs. complete) means color carries meaning instead of just decoration.</p>
+          </div>
+        </div>
+        <div class="decision-row">
+          <div class="d-label">Layout</div>
+          <div class="d-body">
+            <p><b>What:</b> A vertical, card-based layout on the learning-path and home screens, with generous spacing between level cards and a fixed bottom tab bar for navigation.</p>
+            <p><b>Why:</b> Each level card needs room for a title, short description, a progress bar or lock state, and a time estimate — stacking them vertically with clear separation keeps each level scannable on its own, which matters more here than fitting more on screen.</p>
+          </div>
+        </div>
+        <div class="decision-row">
+          <div class="d-label">Components</div>
+          <div class="d-body">
+            <p><b>What:</b> Level-status cards with lock icons, a circular progress ring on the home dashboard, a goals checklist, and a chat bubble system with quick-reply chips.</p>
+            <p><b>Why:</b> The lock icon does the job of explaining "you can't access this yet" without a paragraph of copy. The circular ring gives an instant sense of "mostly done" or "just started" at a glance, and quick-reply chips in chat lower the effort of asking a follow-up question.</p>
+          </div>
+        </div>
+        <div class="decision-row">
+          <div class="d-label">Interaction design</div>
+          <div class="d-body">
+            <p><b>What:</b> A chat interface where the AI tutor initiates with a contextual message ("I see you were reviewing Quantum Mechanics earlier…") rather than a blank input field.</p>
+            <p><b>Why:</b> An empty chat box is a blank-page problem — it puts the burden of starting on the learner. Having the assistant open with context lowers the barrier to continuing a session.</p>
+            <p class="badge-note">Potential improvement</p>
+            <p>Hover/press feedback states and a lesson-completion transition aren't visible in the static screens — worth defining explicitly in a future iteration so progression feels rewarded, not just recorded.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESIGN SYSTEM -->
+  <section class="cs-section">
+    <div class="container">
+      <span class="cs-kicker reveal">06 — Mini design system</span>
+      <h2 class="reveal">The pieces that repeat across Lumina</h2>
+      <div class="cs-two-col reveal">
+        <div>
+          <p><b>Typography scale</b></p>
+          <p style="margin-top:8px;">Display / heading — level titles, screen titles<br/>
+          Body — descriptions, chat text<br/>
+          Caption — timestamps, tags, percentages</p>
+        </div>
+        <div>
+          <p><b>Components</b></p>
+          <p style="margin-top:8px;">Level card (locked / active / complete) · Circular progress ring ·
+          Goal checklist item · Chat bubble (user / assistant) · Quick-reply chip ·
+          Bottom tab bar · Primary CTA button ("Continue Learning")</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACCESSIBILITY -->
+  <section class="cs-section">
+    <div class="container cs-two-col">
+      <div class="reveal">
+        <span class="cs-kicker">07 — Accessibility</span>
+        <h2>Considerations built into the screens</h2>
+      </div>
+      <div class="reveal cs-body">
+        <p>
+          Locked levels are communicated with both an icon and muted color, not color alone.
+          Progress is shown numerically (percentages, "Day 4") alongside the visual ring or
+          bar, so the information isn't lost for anyone who can't rely on the visual alone.
+          Tap targets on level cards and tab bar icons are sized for comfortable mobile touch.
+        </p>
+        <p style="color: var(--color-ink-faint); font-size: var(--step--1);">
+          No formal accessibility audit or contrast testing was performed on this project —
+          these are structural choices made during design, not a documented compliance pass.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEARNED -->
+  <section class="cs-section">
+    <div class="container">
+      <span class="cs-kicker reveal">08 — What I learned</span>
+      <h2 class="reveal">Reflection</h2>
+      <ul class="learn-list reveal">
+        <li>Designing a chat interface alongside a structured curriculum forced a real decision about hierarchy — Lumina treats chat as the "ask anything" layer and the level path as the "planned progress" layer, rather than trying to merge them into one screen.</li>
+        <li>Mapping the flow in Miro before touching Figma made the level-lock logic (what's visible vs. accessible) much clearer than it would have been designing screen-by-screen.</li>
+        <li>Next time, I'd define the transition/feedback state for completing a level explicitly, rather than leaving it implied by the static screens — progress systems work best when the moment of progress is felt, not just shown.</li>
+      </ul>
+    </div>
+  </section>
+
+  <a class="cs-nextproject reveal" href="hydroaura.html">
+    <div>
+      <span class="np-label">Next case study</span>
+      <h3>HydroAura — Smart Hydration Tracking</h3>
+    </div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </a>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container" style="display:flex; justify-content:space-between; width:100%; flex-wrap:wrap; gap: 12px;">
+    <span>© <span data-year>2026</span> Swetha Tripathi</span>
+    <span>Hyderabad, India · tripathiswetha7@gmail.com</span>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>
