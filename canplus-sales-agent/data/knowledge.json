@@ -47,5 +47,38 @@
   "contact": {
     "website": "https://canplus.io",
     "demo_process": "A short discussion with the CanPlus team to understand infrastructure and integration requirements is the next step after initial interest."
+  },
+  "personas": {
+    "university_leadership": {
+      "titles": ["Dean", "Provost", "Director of Academic Technology", "CIO", "Registrar"],
+      "typical_concerns": [
+        "Data sovereignty and where student data physically resides",
+        "Integration with SIS and existing campus identity systems (SAML/OIDC)",
+        "Migration risk from an existing LMS, including Canvas",
+        "Institutional control over infrastructure and compliance posture",
+        "Supporting large, multi-campus or multi-department learner populations"
+      ],
+      "relevant_deployment": ["on_premise", "private_cloud", "your_cloud", "canplus_managed"]
+    },
+    "school_leadership": {
+      "titles": ["Principal", "Head of School", "K-12 IT Director", "Superintendent"],
+      "typical_concerns": [
+        "Student data protection and safeguarding requirements",
+        "Simplicity of rollout and administration for school staff",
+        "Predictable, manageable infrastructure without a large in-house IT team",
+        "Compliance with local/regional data-residency rules for minors' data"
+      ],
+      "relevant_deployment": ["canplus_managed", "your_cloud", "on_premise"]
+    },
+    "learning_development": {
+      "titles": ["L&D Director", "Head of Training", "HR Director", "Chief Learning Officer"],
+      "typical_concerns": [
+        "Integration with HRIS and existing enterprise systems",
+        "Delivering training at scale across a global or distributed workforce",
+        "Customization of the learning experience to match internal programs",
+        "Reducing operational burden on internal teams (favoring managed deployment)"
+      ],
+      "relevant_deployment": ["canplus_managed", "your_cloud", "private_cloud"]
+    }
   }
 }

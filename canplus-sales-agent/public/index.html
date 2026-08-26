@@ -13,6 +13,14 @@
     <div class="brand-inner">
       <div class="brand-logo">CanPlus</div>
       <p class="brand-tagline">Enterprise-grade, Canvas-compatible LMS built for organizations that need greater control over deployment, infrastructure, data and compliance.</p>
+
+      <div class="audience-block">
+        <div class="audience-label">Built for leaders who need more than a standard hosted LMS</div>
+        <div class="audience-row"><span class="audience-tag">University &amp; College Leadership</span><span class="audience-desc">Deans, Provosts, CIOs, Academic Technology Directors</span></div>
+        <div class="audience-row"><span class="audience-tag">School Leadership</span><span class="audience-desc">Principals, Heads of School, K-12 IT Directors</span></div>
+        <div class="audience-row"><span class="audience-tag">L&amp;D &amp; Training Leaders</span><span class="audience-desc">L&amp;D Directors, Heads of Training, HR/CLOs</span></div>
+      </div>
+
       <ul class="brand-points">
         <li>On-premise, private cloud, your cloud (AWS/Azure/GCP), or CanPlus managed</li>
         <li>Canvas-compatible experience</li>
@@ -30,6 +38,14 @@
     </header>
 
     <div id="messages" class="messages"></div>
+
+    <div id="personaPicker" class="quick-actions persona-picker">
+      <span class="qa-label">I am a...</span>
+      <button class="qa-btn qa-btn-primary" data-msg="I'm a Dean/Provost/CIO at a university, looking into LMS options.">University / College Leader</button>
+      <button class="qa-btn qa-btn-primary" data-msg="I'm a Principal / Head of School / K-12 IT Director evaluating LMS options.">School Principal / Head</button>
+      <button class="qa-btn qa-btn-primary" data-msg="I'm an L&D / Training Leader looking at LMS options for our organization.">L&amp;D / Training Leader</button>
+      <button class="qa-btn" data-msg="Just exploring for now.">Just exploring</button>
+    </div>
 
     <div id="quickActions" class="quick-actions hidden">
       <button class="qa-btn" data-msg="Tell me about CanPlus.">Explore CanPlus</button>
@@ -56,7 +72,23 @@
       <label>Full name *<input type="text" name="name" required /></label>
       <label>Organization *<input type="text" name="organization" required /></label>
       <label>Work email *<input type="email" name="email" required /></label>
-      <label>Role<input type="text" name="role" /></label>
+      <label>Role
+        <select name="role">
+          <option value="">Select...</option>
+          <option>Dean</option>
+          <option>Provost</option>
+          <option>CIO</option>
+          <option>Director of Academic Technology</option>
+          <option>Principal</option>
+          <option>Head of School</option>
+          <option>K-12 IT Director</option>
+          <option>L&D Director</option>
+          <option>Head of Training</option>
+          <option>HR Director</option>
+          <option>CLO</option>
+          <option>Other</option>
+        </select>
+      </label>
       <label>Phone (optional)<input type="tel" name="phone" /></label>
       <label>Organization type
         <select name="organizationType">

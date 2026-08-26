@@ -12,6 +12,7 @@
   const input = document.getElementById("chatInput");
   const sendBtn = document.getElementById("sendBtn");
   const quickActions = document.getElementById("quickActions");
+  const personaPicker = document.getElementById("personaPicker");
 
   const modalOverlay = document.getElementById("demoModalOverlay");
   const demoForm = document.getElementById("demoForm");
@@ -48,6 +49,7 @@
 
   async function sendMessage(text) {
     if (!text.trim()) return;
+    personaPicker.classList.add("hidden");
     addMessage("user", text);
     input.value = "";
     sendBtn.disabled = true;
@@ -93,6 +95,12 @@
     sendMessage(btn.dataset.msg);
   });
 
+  personaPicker.addEventListener("click", (e) => {
+    const btn = e.target.closest(".qa-btn");
+    if (!btn) return;
+    sendMessage(btn.dataset.msg);
+  });
+
   closeModalBtn.addEventListener("click", closeDemoModal);
   modalOverlay.addEventListener("click", (e) => {
     if (e.target === modalOverlay) closeDemoModal();
@@ -130,6 +138,6 @@
   // Opening message
   addMessage(
     "assistant",
-    "Hi! I'm the CanPlus assistant. I can help you understand whether CanPlus is a good fit for your organization and which deployment approach may suit your requirements.\n\nWhat are you currently using for learning management, and what are you hoping to improve?"
+    "Hi! I'm the CanPlus assistant. I can help you understand whether CanPlus is a good fit for your organization and which deployment approach may suit your requirements.\n\nWhat are you currently using for learning management, and what are you hoping to improve? (Or pick who you're speaking as below, and we'll go from there.)"
   );
 })();

@@ -77,6 +77,43 @@ body {
   border-radius: 1px;
 }
 
+.audience-block {
+  margin-bottom: 26px;
+  padding: 16px 18px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.audience-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.audience-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 10px;
+}
+
+.audience-row:last-child { margin-bottom: 0; }
+
+.audience-tag {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.audience-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 .brand-link {
   font-size: 13px;
   color: var(--accent);
@@ -160,6 +197,24 @@ body {
 }
 
 .qa-btn:hover { border-color: var(--accent); }
+
+.qa-btn-primary {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.qa-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  align-self: center;
+  margin-right: 2px;
+}
+
+.persona-picker {
+  padding-top: 4px;
+  padding-bottom: 16px;
+}
 
 .chat-input-row {
   display: flex;
@@ -298,6 +353,7 @@ body {
     border-bottom: 1px solid var(--border);
   }
   .brand-points { display: none; }
+  .audience-block { margin-bottom: 16px; }
   .chat-panel { height: auto; min-height: 60vh; }
   .demo-form { grid-template-columns: 1fr; }
 }
