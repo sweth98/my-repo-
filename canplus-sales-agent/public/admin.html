@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CanPlus | Leads (Debug)</title>
+<style>
+  body { font-family: -apple-system, Helvetica, Arial, sans-serif; margin: 32px; color: #1c1c1c; }
+  h1 { font-size: 18px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; margin-top: 16px; }
+  th, td { border: 1px solid #e2e2e0; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #eef3f1; }
+  .hot { color: #b3261e; font-weight: 600; }
+  .warm { color: #8a6d00; font-weight: 600; }
+  .low { color: #6b6b6b; }
+</style>
+</head>
+<body>
+<h1>CanPlus Leads (debug panel, no auth -- MVP only)</h1>
+<div id="root">Loading...</div>
+<script>
+  fetch("/api/leads")
+    .then((r) => r.json())
+    .then((leads) => {
+      if (!leads.length) {
+        document.getElementById("root").textContent = "No leads captured yet.";
+        return;
+      }
+      const cols = Object.keys(leads[0]);
+      const table = document.createElement("table");
+      const thead = "<tr>" + cols.map((c) => `<th>${c}</th>`).join("") + "</tr>";
+      const rows = leads
+        .map((lead) => {
+          const cls =
+            lead.lead_status === "HOT" ? "hot" : lead.lead_status === "WARM" ? "warm" : "low";
+          return (
+            "<tr>" +
+            cols
+              .map((c) => `<td class="${c === "lead_status" ? cls : ""}">${lead[c] ?? ""}</td>`)
+              .join("") +
+            "</tr>"
+          );
+        })
+        .join("");
+      table.innerHTML = thead + rows;
+      document.getElementById("root").innerHTML = "";
+      document.getElementById("root").appendChild(table);
+    });
+</script>
+</body>
+</html>

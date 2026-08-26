@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CanPlus | Enterprise LMS Assistant</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="layout">
+
+  <aside class="brand-panel">
+    <div class="brand-inner">
+      <div class="brand-logo">CanPlus</div>
+      <p class="brand-tagline">Enterprise-grade, Canvas-compatible LMS built for organizations that need greater control over deployment, infrastructure, data and compliance.</p>
+      <ul class="brand-points">
+        <li>On-premise, private cloud, your cloud (AWS/Azure/GCP), or CanPlus managed</li>
+        <li>Canvas-compatible experience</li>
+        <li>LTI 1.3, SCORM, xAPI, SAML/OIDC, SIS &amp; HRIS integrations</li>
+        <li>Built for universities, government, defence and global enterprises</li>
+      </ul>
+      <a class="brand-link" href="https://canplus.io" target="_blank" rel="noopener">canplus.io</a>
+    </div>
+  </aside>
+
+  <main class="chat-panel">
+    <header class="chat-header">
+      <div class="chat-header-title">CanPlus Assistant</div>
+      <div class="chat-header-sub">Enterprise LMS &amp; deployment guidance</div>
+    </header>
+
+    <div id="messages" class="messages"></div>
+
+    <div id="quickActions" class="quick-actions hidden">
+      <button class="qa-btn" data-msg="Tell me about CanPlus.">Explore CanPlus</button>
+      <button class="qa-btn" data-msg="What deployment options are available?">Deployment Options</button>
+      <button class="qa-btn" data-msg="How does CanPlus compare to Canvas?">Canvas vs CanPlus</button>
+      <button class="qa-btn" data-msg="We're considering migrating from our current LMS. What should we know?">Migration</button>
+      <button class="qa-btn" data-msg="I'd like to request a demo.">Request a Demo</button>
+    </div>
+
+    <form id="chatForm" class="chat-input-row">
+      <input id="chatInput" type="text" placeholder="Type your message..." autocomplete="off" />
+      <button type="submit" id="sendBtn">Send</button>
+    </form>
+  </main>
+</div>
+
+<div id="demoModalOverlay" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Request a CanPlus Demo</h2>
+      <button id="closeModal" class="modal-close" aria-label="Close">&times;</button>
+    </div>
+    <form id="demoForm" class="demo-form">
+      <label>Full name *<input type="text" name="name" required /></label>
+      <label>Organization *<input type="text" name="organization" required /></label>
+      <label>Work email *<input type="email" name="email" required /></label>
+      <label>Role<input type="text" name="role" /></label>
+      <label>Phone (optional)<input type="tel" name="phone" /></label>
+      <label>Organization type
+        <select name="organizationType">
+          <option value="">Select...</option>
+          <option>University</option>
+          <option>College</option>
+          <option>K-12</option>
+          <option>Government</option>
+          <option>Defence</option>
+          <option>Enterprise</option>
+          <option>Training provider</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label>Current LMS<input type="text" name="currentLms" /></label>
+      <label>Approximate learner count<input type="text" name="learnerCount" placeholder="e.g. 5,000" /></label>
+      <label>Deployment requirement
+        <select name="deploymentRequirement">
+          <option value="">Select...</option>
+          <option value="On-premise">On-premise</option>
+          <option value="Private cloud">Private cloud</option>
+          <option value="AWS">AWS</option>
+          <option value="Azure">Azure</option>
+          <option value="GCP">GCP</option>
+          <option value="CanPlus managed">CanPlus managed</option>
+          <option value="Not sure">Not sure</option>
+        </select>
+      </label>
+      <label>Data residency / geographic requirement<input type="text" name="dataResidency" /></label>
+      <label>Integration requirements<input type="text" name="integrations" placeholder="e.g. SIS, SSO/SAML" /></label>
+      <label class="full-width">Additional requirements / main problem
+        <textarea name="mainRequirement" rows="3"></textarea>
+      </label>
+      <button type="submit" class="submit-btn full-width">Request a CanPlus Demo</button>
+    </form>
+    <div id="demoConfirmation" class="demo-confirmation hidden"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

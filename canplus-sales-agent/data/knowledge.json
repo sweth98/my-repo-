@@ -1,0 +1,51 @@
+{
+  "overview": "CanPlus is an enterprise-grade, Canvas-compatible Learning Management System (LMS) designed for organizations that need greater control over deployment, infrastructure, data and compliance than a standard cloud-first LMS typically offers.",
+  "deployment_options": {
+    "on_premise": "On-premise keeps the LMS inside your own infrastructure, giving your organization direct control over the environment and data. Recommended for organizations that require full infrastructure control, data sovereignty, air-gapped deployment, strict security policies, or government/defence deployment.",
+    "private_cloud": "CanPlus can run in a private cloud environment while your organization retains control over the infrastructure.",
+    "your_cloud": "CanPlus can run in your preferred cloud environment (AWS, Azure, or GCP) while your organization retains control over the cloud infrastructure.",
+    "canplus_managed": "CanPlus Managed reduces operational burden by having CanPlus manage infrastructure and LMS operations, including monitoring, scaling, and patching, as an ongoing operational support arrangement."
+  },
+  "why_canplus": "CanPlus is not intended to replace Canvas for every organization. It is particularly relevant when an organization needs additional control over data sovereignty, deployment location, security, compliance, infrastructure, customization, integration, or source-level control. Canvas may be perfectly appropriate for many organizations; CanPlus becomes relevant when requirements go beyond a standard cloud-first LMS deployment.",
+  "canvas_compatibility": "CanPlus is Canvas-compatible, so organizations already using Canvas can retain a familiar experience while gaining additional deployment and control options.",
+  "target_organizations": [
+    "Universities",
+    "Colleges",
+    "K-12 organizations",
+    "Government organizations",
+    "Defence organizations",
+    "Enterprises",
+    "Global organizations",
+    "Training providers",
+    "Academies"
+  ],
+  "integrations": [
+    "LTI 1.3",
+    "SCORM",
+    "xAPI",
+    "SAML/OIDC",
+    "APIs",
+    "Webhooks",
+    "SIS integrations",
+    "HRIS integrations"
+  ],
+  "security_positioning": "CanPlus's core positioning is around data sovereignty, deployment control, and infrastructure control -- supporting on-premise, private cloud, customer-owned cloud (AWS/Azure/GCP), and managed deployment models so organizations can meet their own security and compliance requirements. Specific certifications, SLA terms, or compliance guarantees are not covered in this knowledge base and should be confirmed directly with the CanPlus team.",
+  "faq": [
+    {
+      "q": "Why not just use Canvas?",
+      "a": "Canvas may be perfectly appropriate for many organizations. CanPlus becomes particularly relevant when an organization needs on-premise deployment, private cloud, data sovereignty, air-gapped environments, greater infrastructure control, source-level customization, or specific compliance requirements."
+    },
+    {
+      "q": "We already use Canvas, why would we switch?",
+      "a": "If your current Canvas environment works well and you don't need additional deployment or control requirements, there may be no reason to change. CanPlus becomes interesting when you need on-premise/private-cloud deployment, stronger data-control requirements, or deeper customization while retaining a familiar Canvas-compatible experience."
+    },
+    {
+      "q": "What does CanPlus cost?",
+      "a": "Pricing is not published in this knowledge base and depends on deployment model and requirements. The CanPlus team can provide pricing after understanding your requirements."
+    }
+  ],
+  "contact": {
+    "website": "https://canplus.io",
+    "demo_process": "A short discussion with the CanPlus team to understand infrastructure and integration requirements is the next step after initial interest."
+  }
+}
