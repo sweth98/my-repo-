@@ -1,0 +1,361 @@
+{
+ "title": "Newton's Three Laws of Motion",
+ "audience": "Class 9-10 (CBSE/ICSE)",
+ "scenes": [
+  {
+   "id": "hook",
+   "title": "Hook",
+   "chapter": null,
+   "lines": [
+    {
+     "id": "h1",
+     "emotion": "question",
+     "text": "Why do you lurch forward when a bus suddenly brakes?",
+     "visual": "Local bus drives across a Mumbai-style street. Mascot Newt (little robot student) stands inside holding a pole. Bus screeches, Newt squashes and stretches forward. Freeze-frame with a big question mark."
+    },
+    {
+     "id": "h2",
+     "emotion": "surprise",
+     "pauseBefore": 0.5,
+     "text": "Nobody pushed you. So what just happened?",
+     "visual": "Rewind effect, slow-motion replay, arrows ask 'who pushed?' and fade to nothing."
+    },
+    {
+     "id": "h3",
+     "emotion": "fun",
+     "text": "The answer hides in three rules from Sir Isaac Newton.",
+     "visual": "Whip-pan to a navy night sky. Three glowing cards (blue, orange, green) pop in with an apple that wobbles."
+    },
+    {
+     "id": "h4",
+     "emotion": "fun",
+     "text": "Let's master them with autos, cricket balls and an ISRO rocket!",
+     "visual": "Auto-rickshaw, cricket ball and rocket zoom across the screen, title 'Newton's Three Laws' slams in with screen shake."
+    }
+   ]
+  },
+  {
+   "id": "law1",
+   "title": "Law 1 - Inertia",
+   "chapter": "Law 1",
+   "accent": "#3D8BFF",
+   "lines": [
+    {
+     "id": "a1",
+     "emotion": "fun",
+     "text": "Law number one. The law of inertia.",
+     "visual": "Blue shape-wipe transition. Chapter tag 'LAW 1' appears top-left. Title with bounce."
+    },
+    {
+     "id": "a2",
+     "emotion": "definition",
+     "pauseBefore": 0.3,
+     "text": "An object stays at rest, or keeps moving in a straight line at constant speed, unless an unbalanced force acts on it.",
+     "visual": "Kinetic typography: key words (rest, straight line, constant speed, unbalanced force) pop in time with the voice and glow blue."
+    },
+    {
+     "id": "a3",
+     "emotion": "explain",
+     "text": "Balanced forces cancel, like a tug of war between equal teams. Unbalanced forces change the motion.",
+     "visual": "Tug of war: two equal force arrows (50 N each) keep the knot still. Then one arrow grows to 80 N, arrow turns red and the knot slides."
+    },
+    {
+     "id": "a4",
+     "emotion": "fun",
+     "text": "Back to the bus. Your body was moving with it. The bus stops, but your body keeps going. So you lurch forward!",
+     "visual": "Split replay of the bus. Dotted line shows the bus stopping while Newt's path continues. Speed lines, dust puff, screen shake."
+    },
+    {
+     "id": "a5",
+     "emotion": "definition",
+     "pauseBefore": 0.3,
+     "text": "That is inertia: the tendency to resist any change in motion.",
+     "visual": "The word INERTIA is built letter by letter with overshoot."
+    },
+    {
+     "id": "a6",
+     "emotion": "fun",
+     "text": "Inertia of rest. Yank a tablecloth fast and the plates stay put. Flick the card and the coin drops into the glass. Beat a dusty carpet and the dust falls out.",
+     "visual": "Three mini-demos in a row, each dimmed until its sentence: tablecloth trick, coin on a card dropping into a glass, carpet beating with dust puffs."
+    },
+    {
+     "id": "a7",
+     "emotion": "fun",
+     "text": "Inertia of motion. A runner keeps running a few steps after the finish line.",
+     "visual": "Runner crosses the finish tape, slides forward with squash and stretch, motion blur."
+    },
+    {
+     "id": "a8",
+     "emotion": "fun",
+     "text": "Inertia of direction. When an auto turns left, you slide right.",
+     "visual": "Top-down view of an auto taking a left turn, passenger dot continues straight along a dotted arrow."
+    },
+    {
+     "id": "a9",
+     "emotion": "surprise",
+     "pauseBefore": 0.6,
+     "text": "Heavier objects have more inertia. Mass measures inertia.",
+     "visual": "Split screen: light football vs heavy iron ball, same push; heavy one barely moves. Label 'More mass = more inertia'."
+    },
+    {
+     "id": "a10",
+     "emotion": "explain",
+     "text": "That is why seatbelts matter. In a crash the car stops, but you don't. The belt stops you safely.",
+     "visual": "Slow-motion crash freeze frame with callout labels 'Car stops' and 'Body keeps moving'; seatbelt snaps across Newt and a green tick pops."
+    }
+   ]
+  },
+  {
+   "id": "law2",
+   "title": "Law 2 - F = ma",
+   "chapter": "Law 2",
+   "accent": "#FF8A1F",
+   "lines": [
+    {
+     "id": "b1",
+     "emotion": "question",
+     "text": "Which is harder to push: an empty cart, or a cart full of vegetables?",
+     "visual": "Orange wipe. Chapter tag 'LAW 2'. Split screen: Newt pushes an empty cart (fast, light) vs a full vegetable cart (slow, heavy). Wind-up anticipation before each push."
+    },
+    {
+     "id": "b2",
+     "emotion": "fun",
+     "text": "The full one! Now give a cricket ball and a football the same kick. The lighter cricket ball speeds up more.",
+     "visual": "Same-size force arrow (40 N) on both. Cricket ball (0.16 kg) flies in a big arc, football (0.43 kg) in a lower arc. Arrows and numbers labelled."
+    },
+    {
+     "id": "b3",
+     "emotion": "definition",
+     "pauseBefore": 0.4,
+     "text": "Law number two. Acceleration is directly proportional to the net force, and inversely proportional to the mass.",
+     "visual": "Kinetic typography in orange. The words 'directly' and 'inversely' flip with a small bounce."
+    },
+    {
+     "id": "b4",
+     "emotion": "formula",
+     "pauseBefore": 0.5,
+     "text": "Together, that is F equals m times a.",
+     "visual": "The equation assembles piece by piece: F slides in from left, = drops from top, m pops, x spins in, a zooms in. Pieces glow in turn."
+    },
+    {
+     "id": "b5",
+     "emotion": "formula",
+     "text": "F is force in newtons. m is mass in kilograms. a is acceleration in metres per second squared.",
+     "visual": "Each letter gets a unit tag: N, kg, m/s². Tags land with a pop."
+    },
+    {
+     "id": "b7",
+     "emotion": "explain",
+     "text": "Momentum is mass times velocity. Force is how fast momentum changes. For constant mass, that is F equals m times a.",
+     "visual": "Equation morphs: p = m v, then F = change in p / change in t, then F = m a. Match-cut back to the main formula."
+    },
+    {
+     "id": "b8",
+     "emotion": "fun",
+     "text": "Double the force, double the acceleration. Double the mass, half the acceleration.",
+     "visual": "Live bar graph: force bar doubles, acceleration bar doubles; mass doubles, acceleration bar halves."
+    },
+    {
+     "id": "b9",
+     "emotion": "fun",
+     "pauseBefore": 0.4,
+     "text": "Numerical time! An auto-rickshaw of five hundred kilograms gets a net force of one thousand newtons. Find its acceleration, and its speed after five seconds from rest.",
+     "visual": "Chalkboard card slides in with the question. Auto-rickshaw sits at the start line."
+    },
+    {
+     "id": "b10",
+     "emotion": "formula",
+     "pauseBefore": 0.4,
+     "text": "Given: m is five hundred kilograms, F is one thousand newtons, u is zero.",
+     "visual": "'Given' list types in with units; each value highlights as spoken."
+    },
+    {
+     "id": "b12",
+     "emotion": "formula",
+     "text": "a equals F divided by m, so a equals one thousand divided by five hundred, which is two metres per second squared.",
+     "visual": "Numbers drop in, counter animates 1000 / 500 = 2 m/s². Auto accelerates slowly with speed lines."
+    },
+    {
+     "id": "b13",
+     "emotion": "formula",
+     "text": "Then v equals u plus a times t, which is zero plus two times five, so ten metres per second.",
+     "visual": "Live speedometer and velocity-time graph draw a straight line up to 10 m/s at t = 5 s."
+    },
+    {
+     "id": "b14",
+     "emotion": "surprise",
+     "pauseBefore": 0.5,
+     "text": "That is thirty six kilometres per hour!",
+     "visual": "Speedometer needle overshoots and settles at 36 km/h; confetti sparks. Newt cheers."
+    }
+   ]
+  },
+  {
+   "id": "law3",
+   "title": "Law 3 - Action and Reaction",
+   "chapter": "Law 3",
+   "accent": "#2ED47A",
+   "lines": [
+    {
+     "id": "c1",
+     "emotion": "fun",
+     "text": "Law number three! Action and reaction.",
+     "visual": "Green wipe. Chapter tag 'LAW 3'. Two hands push each other and spring apart."
+    },
+    {
+     "id": "c2",
+     "emotion": "definition",
+     "pauseBefore": 0.3,
+     "text": "For every action, there is an equal and opposite reaction.",
+     "visual": "Kinetic typography; 'equal' and 'opposite' appear as two arrows pointing apart."
+    },
+    {
+     "id": "c3",
+     "emotion": "explain",
+     "text": "If A pushes B, then B pushes A back, equally hard, in the opposite direction.",
+     "visual": "Two skaters push off each other; arrows of equal length (60 N each) in opposite directions, skaters slide apart (lighter one faster)."
+    },
+    {
+     "id": "c4",
+     "emotion": "fun",
+     "text": "An ISRO rocket pushes hot gases down, and the gases push the rocket up.",
+     "visual": "Rocket on pad, anticipation shake, countdown, lift-off with flame particles; gas arrow down, thrust arrow up; screen shake."
+    },
+    {
+     "id": "c5",
+     "emotion": "fun",
+     "text": "A swimmer pushes water back, and the water pushes the swimmer forward.",
+     "visual": "Side view of a swimmer in a pool, water arrows backward and forward."
+    },
+    {
+     "id": "c6",
+     "emotion": "fun",
+     "text": "A gun pushes the bullet forward, and the bullet kicks the gun back. That is recoil.",
+     "visual": "Toy cannon on a cart fires a ball; cannon rolls back with a puff of smoke. Labels 'Action' and 'Reaction'."
+    },
+    {
+     "id": "c7",
+     "emotion": "fun",
+     "text": "When you walk, your foot pushes the ground back, and the ground pushes you forward.",
+     "visual": "Foot-level view; arrow on ground and arrow on foot; Newt slips on a banana peel with squash and stretch."
+    },
+    {
+     "id": "c8",
+     "emotion": "fun",
+     "text": "A released balloon: air rushes out, and the balloon zooms the other way!",
+     "visual": "Balloon released, flies around in a loopy arc with a wobbling tail."
+    },
+    {
+     "id": "c9",
+     "emotion": "question",
+     "pauseBefore": 0.5,
+     "text": "But if the forces are equal and opposite, why don't they cancel?",
+     "visual": "Freeze frame, question marks orbit Newt's head."
+    },
+    {
+     "id": "c10",
+     "emotion": "explain",
+     "text": "Because they act on different objects! Action on the ball, reaction on your foot. Forces cancel only on the same object.",
+     "visual": "Foot and ball, two coloured arrows each with a halo around its own object; a dotted line shows 'cancel' only works inside one halo."
+    }
+   ]
+  },
+  {
+   "id": "recap",
+   "title": "Recap and Quiz",
+   "chapter": "Recap",
+   "accent": "#B36BFF",
+   "lines": [
+    {
+     "id": "r1",
+     "emotion": "upbeat",
+     "text": "Recap! Law one: objects resist changes in motion.",
+     "visual": "Three cards fly in, blue card flips up first with an inertia icon."
+    },
+    {
+     "id": "r2",
+     "emotion": "upbeat",
+     "text": "Law two: force equals mass times acceleration.",
+     "visual": "Orange card flips, F = m a pulses."
+    },
+    {
+     "id": "r3",
+     "emotion": "upbeat",
+     "text": "Law three: every action has an equal and opposite reaction.",
+     "visual": "Green card flips, two arrows bounce apart."
+    },
+    {
+     "id": "r4",
+     "emotion": "upbeat",
+     "pauseBefore": 0.4,
+     "text": "Quick quiz! Three questions, five seconds each.",
+     "visual": "Newt in a game-show pose, 'QUIZ TIME' banner with confetti."
+    },
+    {
+     "id": "q1",
+     "emotion": "upbeat",
+     "pauseBefore": 0.3,
+     "text": "Question one. A bus stops and you lurch forward. A, law one? B, law two? C, law three?",
+     "visual": "Options A, B, C slide in; 5 second ring countdown timer.",
+     "quiz": {
+      "countdown": 5,
+      "answer": "A"
+     }
+    },
+    {
+     "id": "q1a",
+     "emotion": "upbeat",
+     "pauseBefore": 0.4,
+     "text": "A! Law one.",
+     "visual": "Wrong options fade, A grows green with a tick; Newt jumps.",
+     "reveal": true
+    },
+    {
+     "id": "q2",
+     "emotion": "upbeat",
+     "pauseBefore": 0.3,
+     "text": "Question two. Twenty newtons acts on a four kilogram trolley. What is its acceleration in metres per second squared? A, two. B, five. C, eighty.",
+     "visual": "Trolley, options A, B, C, 5 second countdown.",
+     "quiz": {
+      "countdown": 5,
+      "answer": "B"
+     }
+    },
+    {
+     "id": "q2a",
+     "emotion": "upbeat",
+     "pauseBefore": 0.4,
+     "text": "B! Twenty divided by four is five.",
+     "visual": "B glows; a = 20 / 4 = 5 m/s² counts up.",
+     "reveal": true
+    },
+    {
+     "id": "q3",
+     "emotion": "upbeat",
+     "pauseBefore": 0.3,
+     "text": "Question three. A rocket rises because gases are pushed down. A, law one? B, law two? C, law three?",
+     "visual": "Rocket icon, options A, B, C, 5 second countdown.",
+     "quiz": {
+      "countdown": 5,
+      "answer": "C"
+     }
+    },
+    {
+     "id": "q3a",
+     "emotion": "upbeat",
+     "pauseBefore": 0.4,
+     "text": "C! Action and reaction.",
+     "visual": "C glows green; rocket lifts off.",
+     "reveal": true
+    },
+    {
+     "id": "r5",
+     "emotion": "upbeat",
+     "pauseBefore": 0.4,
+     "text": "You nailed it! Go spot Newton's laws everywhere. See you next time!",
+     "visual": "Newt waves, three cards orbit, end card with fade-out."
+    }
+   ]
+  }
+ ]
+}
