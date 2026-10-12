@@ -1,0 +1,20 @@
+{
+  "name": "newtons-laws-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts NewtonsLaws out/newtons-laws.mp4"
+  },
+  "dependencies": {
+    "@fontsource/baloo-2": "^5.3.0",
+    "@fontsource/poppins": "^5.3.0",
+    "@remotion/cli": "^4.0.535",
+    "@remotion/media-utils": "^4.0.535",
+    "@types/react": "^19.3.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.535",
+    "typescript": "^7.0.2"
+  }
+}
