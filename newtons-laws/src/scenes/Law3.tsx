@@ -266,7 +266,7 @@ const C10: React.FC = () => {
         {f > tFoot && <Arrow x1={footX + 120} y1={gnd - 280} x2={footX - 130} y2={gnd - 280} color={GR2} w={22} label="Reaction: force ON your foot" labelSize={34} grow={clamp(sp(f, tFoot))} labelSide={-1} />}
       </g>
       {showInset && (
-        <g transform={`translate(1550,300) scale(${clamp(v, 0, 1.08)})`} opacity={clamp(v * 2)}>
+        <g transform={`translate(1560,250) scale(${clamp(v, 0, 1.08)})`} opacity={clamp(v * 2)}>
           <rect x={-340} y={-190} width={680} height={400} rx={46} fill="#0B1437" stroke={C.yellow} strokeWidth={7} />
           <T x={0} y={-120} size={44} color={C.yellow} weight={800}>Forces cancel only on</T>
           <T x={0} y={-66} size={52} color="#fff" weight={800}>the SAME object</T>

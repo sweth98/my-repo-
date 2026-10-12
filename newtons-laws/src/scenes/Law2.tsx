@@ -344,8 +344,8 @@ const B10_14: React.FC = () => {
           {[0, 5, 10].map((k) => <text key={k} x={64} y={318 - k * 25} fontFamily={FONT2} fontWeight={700} fontSize={26} fill="#9AA7C7" textAnchor="end">{k}</text>)}
           <line x1={80} y1={310} x2={80 + tau * 100} y2={310 - v * 25} stroke={OR} strokeWidth={10} strokeLinecap="round" />
           <circle cx={80 + tau * 100} cy={310 - v * 25} r={14} fill={C.yellow} />
-          <T x={470} y={110} size={44} color={C.yellow} weight={800}>v = {v.toFixed(1)} m/s</T>
-          <T x={470} y={162} size={36} color={OR} weight={700}>t = {tau.toFixed(1)} s</T>
+          <T x={500} y={236} size={40} color={C.yellow} weight={800}>v = {v.toFixed(1)} m/s</T>
+          <T x={500} y={284} size={34} color={OR} weight={700}>t = {tau.toFixed(1)} s</T>
         </g>
       )}
       {in14 && <Gauge x={1520} y={340} kmh={needle} r={150} />}
