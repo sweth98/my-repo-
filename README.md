@@ -61,3 +61,7 @@ tests/
 pyproject.toml       # package metadata and the `numstats` console script
 requirements.txt     # test dependency (pytest); package itself is stdlib-only
 ```
+
+## Also in this repo: THE MATRIX
+
+`matrix/` contains a self-contained interactive Three.js digital-rain experience. See [`matrix/README.md`](matrix/README.md).
