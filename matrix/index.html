@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#020403">
+  <meta name="description" content="An interactive digital-rain world built with Three.js.">
+  <title>THE MATRIX</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/three.module.min.js",
+      "three/addons/": "./vendor/three/addons/"
+    }
+  }
+  </script>
+</head>
+<body class="phase-menu">
+  <canvas id="stage" aria-label="Interactive digital rain visualisation" role="img" tabindex="-1"></canvas>
+  <div class="crt" aria-hidden="true"></div>
+
+  <!-- HUD -->
+  <header class="hud" id="hud" hidden>
+    <div class="hud-title"><span id="hud-mode">DIGITAL RAIN</span> <span class="dim">/</span> <span id="hud-layer">LAYER 01</span></div>
+    <div class="hud-actions">
+      <span id="hud-paused" class="badge" hidden>PAUSED</span>
+      <button type="button" id="btn-sound" class="chip" aria-pressed="true" aria-label="Sound">SND ON</button>
+      <button type="button" id="btn-full" class="chip" aria-label="Toggle fullscreen (F)">FULL</button>
+      <button type="button" id="btn-keys" class="chip" aria-expanded="true" aria-controls="guide">KEYS</button>
+      <button type="button" id="btn-menu" class="chip" aria-label="Return to main menu">MENU</button>
+    </div>
+  </header>
+
+  <!-- System alert overlay -->
+  <div id="alert" class="alert" role="status" aria-live="polite"><span class="alert-tag">SYSTEM ALERT</span><span id="alert-text"></span></div>
+
+  <!-- Console -->
+  <section id="console" class="console" aria-label="System console" hidden>
+    <div class="console-head">
+      <span>SYS://CONSOLE</span>
+      <button type="button" id="console-toggle" class="chip tiny" aria-expanded="true" aria-controls="console-body" aria-label="Collapse console">_</button>
+    </div>
+    <div id="console-body">
+      <div id="console-log" class="console-log" role="log" aria-live="polite" tabindex="0"></div>
+      <form id="console-form" class="console-form" autocomplete="off">
+        <label for="console-input" class="prompt">&gt;</label>
+        <input id="console-input" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type 'help'  (press / to focus)" aria-label="Console command">
+      </form>
+    </div>
+  </section>
+
+  <!-- Control guide -->
+  <aside id="guide" class="guide" aria-label="Controls" hidden>
+    <div class="guide-head"><span>CONTROLS</span><button type="button" id="guide-close" class="chip tiny" aria-label="Hide controls">×</button></div>
+    <dl>
+      <dt>Mouse</dt><dd>parallax</dd>
+      <dt>Drag</dt><dd>look around</dd>
+      <dt>Scroll</dt><dd>move through code</dd>
+      <dt>Double-click</dt><dd>deeper layer</dd>
+      <dt>Space</dt><dd>pause / resume</dd>
+      <dt>R</dt><dd>reset</dd>
+      <dt>F</dt><dd>fullscreen</dd>
+      <dt>1 2 3</dt><dd>switch mode</dd>
+      <dt>M</dt><dd>mute</dd>
+      <dt>/ or Enter</dt><dd>console</dd>
+      <dt>H</dt><dd>hide this panel</dd>
+    </dl>
+  </aside>
+
+  <!-- Main menu -->
+  <main id="menu" class="menu">
+    <div class="menu-inner">
+      <h1 class="title" data-text="THE MATRIX">THE MATRIX</h1>
+      <p class="subtitle">Enter the digital reality.</p>
+
+      <div class="modes" role="radiogroup" aria-label="Experience mode" id="modes">
+        <button type="button" role="radio" aria-checked="true" data-mode="rain" class="mode">
+          <span class="mode-num">01</span><span class="mode-name">DIGITAL RAIN</span>
+          <span class="mode-desc">A full-screen, immersive code-stream environment.</span>
+        </button>
+        <button type="button" role="radio" aria-checked="false" data-mode="deep" class="mode" tabindex="-1">
+          <span class="mode-num">02</span><span class="mode-name">DEEP SYSTEM</span>
+          <span class="mode-desc">Darker and more spatial. Stronger depth, slower camera.</span>
+        </button>
+        <button type="button" role="radio" aria-checked="false" data-mode="glitch" class="mode" tabindex="-1">
+          <span class="mode-num">03</span><span class="mode-name">GLITCH MODE</span>
+          <span class="mode-desc">Energetic. Controlled distortion, flicker, rapid stream changes.</span>
+        </button>
+      </div>
+
+      <button type="button" id="start" class="start">START EXPERIENCE</button>
+      <p class="note" id="menu-note">Sound begins after you press start. Headphones recommended.</p>
+    </div>
+  </main>
+
+  <!-- Boot sequence -->
+  <div id="boot" class="boot" aria-hidden="true"><pre id="boot-text"></pre><span class="boot-skip">press any key to skip</span></div>
+
+  <noscript><p class="noscript">This experience requires JavaScript.</p></noscript>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
