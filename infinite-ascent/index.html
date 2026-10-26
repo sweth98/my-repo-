@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>The Infinite Ascent</title>
+  <meta name="description" content="An experiment in impossible architecture — a 35 second looping Three.js motion study." />
+  <style>
+    :root { --navy: #101c30; --deep: #070d18; --cream: #f2ebdd; --cyan: #bfeaf0; --slate: #829cb8; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--deep); color: var(--cream); overflow: hidden;
+      font-family: "Helvetica Neue", "Inter", "Segoe UI", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+    #stage { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--navy); overflow: hidden; }
+    #stage canvas { display: block; width: 100%; height: 100%; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    #hud { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 18px 18px; display: flex; gap: 12px; align-items: center;
+      background: linear-gradient(to top, rgba(7,13,24,.78), rgba(7,13,24,0)); opacity: 0; transition: opacity .35s ease; pointer-events: none; }
+    #stage:hover #hud, #stage.touched #hud, #stage:focus-within #hud { opacity: 1; pointer-events: auto; }
+    #hud button { all: unset; cursor: pointer; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--slate);
+      padding: 8px 6px; border-bottom: 1px solid transparent; }
+    #hud button:hover, #hud button:focus-visible { color: var(--cream); border-bottom-color: var(--slate); }
+    #hud input[type=range] { flex: 1; accent-color: var(--slate); min-width: 40px; }
+    #time { font-size: 11px; letter-spacing: .16em; color: var(--slate); font-variant-numeric: tabular-nums; min-width: 4.6em; text-align: right; }
+
+    #sound { position: absolute; right: 18px; top: 18px; }
+    #loading { position: absolute; inset: 0; display: grid; place-items: center; font-size: 11px; letter-spacing: .3em; color: var(--slate); background: var(--navy); transition: opacity .6s; }
+    #loading.done { opacity: 0; pointer-events: none; }
+
+    #dev { position: fixed; left: 12px; top: 12px; width: 330px; max-height: calc(100% - 24px); overflow: auto; padding: 12px; font: 11px/1.45 ui-monospace, Menlo, Consolas, monospace;
+      background: rgba(7,13,24,.92); border: 1px solid #243249; color: var(--slate); display: none; z-index: 10; }
+    #dev.on { display: block; }
+    #dev h4 { margin: 0 0 8px; color: var(--cream); font-weight: 500; letter-spacing: .14em; }
+    #dev .row { display: flex; gap: 8px; margin: 6px 0; align-items: center; }
+    #dev button { all: unset; cursor: pointer; padding: 4px 8px; border: 1px solid #33455f; color: var(--cream); }
+    #dev button:hover { background: #1a2a42; }
+    #dev canvas { width: 150px; height: 267px; background: #000; border: 1px solid #243249; }
+    #dev pre { margin: 6px 0 0; white-space: pre-wrap; color: var(--cyan); }
+  </style>
+</head>
+<body>
+  <div id="stage" aria-label="The Infinite Ascent — a looping architectural motion study">
+    <h1 class="sr-only">The Infinite Ascent — An Experiment in Impossible Architecture — Motion Study / 003</h1>
+    <div id="loading">THE INFINITE ASCENT</div>
+    <div id="hud">
+      <button id="play" aria-label="Play or pause">Pause</button>
+      <input id="scrub" type="range" min="0" max="35" step="0.0333333" value="0" aria-label="Timeline" />
+      <span id="time">0.00 / 35.00</span>
+      <button id="restart" aria-label="Replay from the start">Replay</button>
+      <button id="export" hidden aria-label="Export MP4">Export</button>
+    </div>
+    <button id="sound" style="all:unset;cursor:pointer;font-size:11px;letter-spacing:.22em;color:#829cb8;text-transform:uppercase;padding:8px 6px" aria-pressed="false">Sound off</button>
+  </div>
+  <div id="dev"></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
