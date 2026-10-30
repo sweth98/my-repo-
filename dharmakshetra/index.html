@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Dharmakshetra — The Chariot of Partha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Sanskrit:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;background:#120a1c;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+  body{display:flex;align-items:center;justify-content:center}
+  canvas{display:block;width:min(100vw,177.78vh);height:auto;aspect-ratio:16/9;cursor:crosshair}
+</style>
+</head>
+<body>
+<canvas id="c" width="960" height="540"></canvas>
+<script>
+"use strict";
+/* ───────────────────────────────────────────────────────────────
+   DHARMAKSHETRA — a small game of Kurukshetra
+   You are Arjuna, Krishna holds the reins. No assets: everything
+   is drawn and sounded in code, in the manner of Pattachitra /
+   Madhubani folk painting — flat colour, bold ink, gold trim.
+   ─────────────────────────────────────────────────────────────── */
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+const W = 960, H = 540, GY = 430, REACH = 345;
+const FONT = '"Tiro Devanagari Sanskrit","Noto Serif Devanagari","Nirmala UI",Georgia,serif';
+const C = { ink:'#1a0f1f', gold:'#e9b44c', ochre:'#d98324', vermil:'#c4361d', indigo:'#23245a', blue:'#3b5fc0',
+            cream:'#f3e2b8', white:'#f4efe2', green:'#2f6b4f', maroon:'#5e1a24', earth:'#8a4b2a', skin:'#d9a066' };
+const rnd = (a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const pick = a=>a[Math.floor(Math.random()*a.length)];
+const lerp=(a,b,t)=>a+(b-a)*t;
+const mix=(a,b,t)=>a.map((v,i)=>lerp(v,b[i],t));
+const rgb=a=>`rgb(${a[0]|0},${a[1]|0},${a[2]|0})`;
+
+/* ═════════════════════════ AUDIO (all synthesised) ═════════════════════════ */
+let AC=null, master=null, muted=false, noiseBuf=null;
+function initAudio(){
+  if(AC) return;
+  try{
+    AC=new (window.AudioContext||window.webkitAudioContext)();
+    master=AC.createGain(); master.gain.value=muted?0:.55; master.connect(AC.destination);
+    noiseBuf=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);
+    const d=noiseBuf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    // tanpura-like drone: Sa Pa Sa' Sa
+    [1,1.5,2,2.004].forEach((r,i)=>{
+      const o=AC.createOscillator(), gn=AC.createGain(), f=AC.createBiquadFilter(), l=AC.createOscillator(), lg=AC.createGain();
+      o.type='sawtooth'; o.frequency.value=65.41*r; f.type='lowpass'; f.frequency.value=420;
+      gn.gain.value=.035; l.frequency.value=.12+i*.05; lg.gain.value=.03;
+      l.connect(lg); lg.connect(gn.gain); o.connect(f); f.connect(gn); gn.connect(master); o.start(); l.start();
+    });
+  }catch(e){ AC=null; }
+}
+function setMute(m){ muted=m; if(master) master.gain.value=m?0:.55; }
+function tone(f,d,type,v,f2,delay=0){
+  if(!AC) return; const t=AC.currentTime+delay, o=AC.createOscillator(), gn=AC.createGain();
+  o.type=type; o.frequency.setValueAtTime(f,t); if(f2) o.frequency.exponentialRampToValueAtTime(Math.max(20,f2),t+d);
+  gn.gain.setValueAtTime(.0001,t); gn.gain.exponentialRampToValueAtTime(v,t+.01); gn.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(gn); gn.connect(master); o.start(t); o.stop(t+d+.05);
+}
+function noise(d,v,f1,f2,type='bandpass',delay=0){
+  if(!AC) return; const t=AC.currentTime+delay, s=AC.createBufferSource(), f=AC.createBiquadFilter(), gn=AC.createGain();
+  s.buffer=noiseBuf; f.type=type; f.frequency.setValueAtTime(f1,t); f.frequency.exponentialRampToValueAtTime(f2,t+d); f.Q.value=1.2;
+  gn.gain.setValueAtTime(v,t); gn.gain.exponentialRampToValueAtTime(.0001,t+d);
+  s.connect(f); f.connect(gn); gn.connect(master); s.start(t); s.stop(t+d+.05);
+}
+const RAGA=[0,1,4,5,7,8,11,12,13,16];            // Bhairav
+function pluck(i){ const f=261.63*Math.pow(2,RAGA[i%RAGA.length]/12); tone(f,.55,'triangle',.11); tone(f*2,.3,'sawtooth',.03); }
+const sfx={
+  shoot(p){ noise(.28,.18+.1*p,2600+p*1500,700); tone(150,.12,'triangle',.08,70); },
+  hit(){ tone(190,.16,'square',.1,70); noise(.1,.2,1100,260); },
+  kill(c){ pluck(c); tone(80,.2,'sine',.25,40); },
+  bad(){ tone(110,.9,'sawtooth',.14,70); tone(117,.9,'sawtooth',.12,66); },
+  bless(){ pluck(4); pluck(7); tone(523,.8,'sine',.06); },
+  hurt(){ tone(95,.3,'square',.16,45); noise(.25,.25,800,150); },
+  drum(){ tone(72,.28,'sine',.28,38); },
+  hiss(){ noise(1.1,.22,5200,2200,'highpass'); },
+  krishna(){ tone(330,.5,'sine',.08,495); noise(.3,.12,1500,500); },
+  astra(){ tone(110,1.6,'sawtooth',.14,880); noise(1.4,.3,400,5000,'bandpass'); tone(660,1.2,'sine',.06,1320,.1); },
+  crown(){ for(let i=0;i<6;i++) tone(1400+i*130,.35,'triangle',.05,900,i*.03); },
+  conch(){
+    if(!AC) return; const t=AC.currentTime;
+    for(const [f,v] of [[233,.1],[350,.05],[466,.04]]){
+      const o=AC.createOscillator(), gn=AC.createGain(), lp=AC.createBiquadFilter(), l=AC.createOscillator(), lg=AC.createGain();
+      o.type='sawtooth'; o.frequency.setValueAtTime(f*.96,t); o.frequency.linearRampToValueAtTime(f,t+.5);
+      lp.type='lowpass'; lp.frequency.value=1100; l.frequency.value=6; lg.gain.value=v*.35; l.connect(lg); lg.connect(gn.gain);
+      gn.gain.setValueAtTime(.0001,t); gn.gain.linearRampToValueAtTime(v,t+.35); gn.gain.setValueAtTime(v,t+1.7); gn.gain.exponentialRampToValueAtTime(.0001,t+2.6);
+      o.connect(lp); lp.connect(gn); gn.connect(master); o.start(t); l.start(t); o.stop(t+2.7); l.stop(t+2.7);
+    }
+  },
+};
+
+/* ═════════════════════════ DATA ═════════════════════════ */
+const DAYS=[
+  { en:'Day One', sa:'प्रथम दिवस', host:"The Host of Bhishma", n:13, gap:1.8,
+    mix:[['inf',.6],['arch',1]], sky:{top:[29,18,64],mid:[138,47,74],hor:[240,160,75],sunY:395,sunR:62},
+    line:["Rise, Partha. The conch has sounded — draw the Gandiva.","Hold to draw the bow, release to loose. Aim where the arrow will fall."],
+    verse:{sa:'कर्मण्येवाधिकारस्ते मा फलेषु कदाचन',tr:'karmaṇy evādhikāras te mā phaleṣu kadācana',en:'You have a right to action alone — never to its fruits.',ref:'Bhagavad Gita 2.47'}},
+  { en:'Day Eleven', sa:'एकादश दिवस', host:"Drona's Formation", n:17, gap:1.55,
+    mix:[['inf',.35],['arch',.6],['char',.83],['sur',1]], sky:{top:[42,42,107],mid:[217,101,47],hor:[247,195,92],sunY:320,sunR:66},
+    line:["Bhishma has fallen on his bed of arrows. Drona now leads them."],
+    verse:{sa:'नैनं छिन्दन्ति शस्त्राणि नैनं दहति पावकः',tr:'nainaṃ chindanti śastrāṇi nainaṃ dahati pāvakaḥ',en:'Weapons cannot cleave the soul; fire cannot burn it.',ref:'Bhagavad Gita 2.23'}},
+  { en:'Day Fifteen', sa:'पञ्चदश दिवस', host:"The War Elephants", n:19, gap:1.65,
+    mix:[['inf',.28],['arch',.48],['char',.62],['ele',.84],['sur',1]], sky:{top:[58,61,143],mid:[232,150,58],hor:[251,224,138],sunY:235,sunR:70},
+    line:["Mountains of war walk the field. Aim for the rider — and the beast will falter."],
+    verse:{sa:'यदा यदा हि धर्मस्य ग्लानिर्भवति भारत',tr:'yadā yadā hi dharmasya glānir bhavati bhārata',en:'Whenever dharma declines, O Bharata, I come forth.',ref:'Bhagavad Gita 4.7'}},
+  { en:'Day Seventeen', sa:'सप्तदश दिवस', host:"Karna, Son of Surya", boss:true, trickle:3.2,
+    sky:{top:[26,12,46],mid:[163,32,31],hor:[232,99,31],sunY:398,sunR:74},
+    line:["Karna — radiant, unbowed — rides against you.","When the serpent-arrow flies, call on me: SPACE."]},
+];
+const ED={ // speed, hit-box [x0,x1,h] (local, facing left), front offset, hp, score
+  inf:{sp:46, box:[-13,14,56], fx:-14, hp:1, sc:10},
+  arch:{sp:40, box:[-13,14,56], fx:-14, hp:1, sc:15},
+  sur:{sp:30, box:[-13,14,56], fx:-14, hp:1, sc:0},
+  char:{sp:112, box:[-190,34,70], fx:-190, hp:2, sc:25},
+  ele:{sp:30, box:[-108,72,132], fx:-112, hp:5, sc:50},
+};
+
+/* ═════════════════════════ STATE ═════════════════════════ */
+let state='title', G=null, mouse={x:700,y:300}, sky=null;
+const stars=Array.from({length:60},()=>({x:rnd(0,W),y:rnd(0,230),r:rnd(.5,1.5),p:rnd(0,6)}));
+const specks=Array.from({length:90},()=>({x:rnd(0,W),y:rnd(405,H),r:rnd(1,4),a:rnd(.05,.2)}));
+function newGame(){
+  G={ day:0, hp:100, dharma:100, astra:0, score:0, combo:0, t:0, dayT:0, enemies:[], arrows:[], eArrows:[], parts:[], pops:[],
+      spawnLeft:0, spawnT:0, spawned:0, drawing:false, drawT:0, cool:0, low:0, lowCD:0, lowAmt:0, shake:0, flash:0, flashC:'196,54,29',
+      boss:null, nag:null, say:null, sayQ:[], bannerT:0, drumT:0, crownBroken:false, struckWhileWheel:false, endT:0, interT:0, over:'', sawSur:false,
+      astraFx:0, bless:0, trickleT:0 };
+  sky=JSON.parse(JSON.stringify(DAYS[0].sky));
+}
+newGame();
+
+function startDay(i){
+  G.day=i; const d=DAYS[i];
+  G.enemies.length=0; G.eArrows.length=0; G.arrows.length=0; G.nag=null; G.boss=null;
+  G.spawnLeft=d.boss?0:d.n; G.spawnT=2.4; G.spawned=0; G.dayT=0; G.bannerT=3.6; G.trickleT=d.trickle||0; G.drawing=false;
+  state='play'; sfx.conch();
+  G.sayQ=[]; d.line.forEach((l,k)=>G.sayQ.push({who:'Krishna',text:l,dur:4.4,at:1.2+k*5}));
+  if(d.boss){ G.sayQ.push({who:'Karna',text:"I have waited for this, Arjuna. Let the field decide!",dur:3.5,at:7}); }
+}
+function say(who,text,dur=4){ G.say={who,text,t:dur,dur}; }
+
+/* ═════════════════════════ SPAWNING & ENEMIES ═════════════════════════ */
+function mkEnemy(type){
+  const lane=Math.floor(rnd(0,3)), D=ED[type];
+  return { type, lane, y:GY+16+lane*22, x:W+120+rnd(0,40), t:rnd(0,6), hp:D.hp, hit:0, stopX:rnd(520,730), shoot:rnd(1.2,2.6), dead:false };
+}
+const scl=e=>[.95,1.03,1.12][e.lane];
+function spawnOne(){
+  const d=DAYS[G.day]; let r=Math.random(), type='inf';
+  for(const [t,p] of d.mix){ if(r<p){type=t;break;} }
+  if(G.day>=1 && !G.sawSur && G.spawned===4) type='sur';
+  G.enemies.push(mkEnemy(type)); G.spawned++;
+}
+function spawnTrickle(){ G.enemies.push(mkEnemy(Math.random()<.2?'sur':(Math.random()<.5?'arch':'inf'))); }
+
+function fireEArrow(e){
+  const s=scl(e), x=e.x-16*s, y=e.y-40*s, tx=190, ty=355, dist=Math.hypot(tx-x,ty-y), T=dist/340, gr=260;
+  G.eArrows.push({x,y,vx:(tx-x)/T,vy:(ty-y)/T-.5*gr*T,gr,dmg:6});
+}
+function spawnPetals(x,y,n,pal=[C.ochre,C.gold,'#f07b1d','#f6d365']){
+  for(let i=0;i<n;i++) G.parts.push({k:'petal',x:x+rnd(-8,8),y:y+rnd(-8,8),vx:rnd(-90,90),vy:rnd(-190,-30),rot:rnd(0,6),vr:rnd(-6,6),life:rnd(.7,1.4),max:1.4,s:rnd(3,6),c:pick(pal)});
+}
+function spawnDust(x,y,n=3){ for(let i=0;i<n;i++) G.parts.push({k:'dust',x,y,vx:rnd(-20,20),vy:rnd(-25,-5),life:.7,max:.7,s:rnd(6,14),c:'#c28c58'}); }
+function pop(x,y,txt,col=C.gold){ G.pops.push({x,y,txt,col,t:1.4}); }
+function hurtPlayer(d,txt){
+  G.hp-=d; G.shake=.35; G.flash=.4; G.flashC='196,54,29'; sfx.hurt(); G.combo=0;
+  if(txt) pop(170,300,txt,'#ff8a6a');
+  if(G.hp<=0){ G.hp=0; endGame('kavacha'); }
+}
+function addDharma(d,txt,col){
+  G.dharma=clamp(G.dharma+d,0,100); if(txt) pop(300,330,txt,col);
+  if(G.dharma<=0) endGame('dharma');
+}
+function killEnemy(e,byAstra){
+  e.dead=true; const D=ED[e.type], s=scl(e);
+  spawnPetals(e.x+(D.box[0]+D.box[1])/2*s,e.y-D.box[2]*s*.5,e.type==='ele'?26:e.type==='char'?16:9);
+  G.combo++; G.score+=D.sc; if(!byAstra) G.astra=Math.min(100,G.astra+(e.type==='ele'?20:e.type==='char'?12:7));
+  pop(e.x,e.y-D.box[2]*s-6,'+'+D.sc); sfx.kill(G.combo);
+}
+function endGame(why){ if(state!=='play') return; G.over=why; state='over'; G.endT=0; G.say=null; sfx.bad(); }
+
+/* ═════════════════════════ INPUT ═════════════════════════ */
+const BTN={ krishna:{x:896,y:452,r:36}, astra:{x:812,y:474,r:30} };
+function toCanvas(e){ const r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*W/r.width, y:(e.clientY-r.top)*H/r.height}; }
+function inBtn(p,b){ return Math.hypot(p.x-b.x,p.y-b.y)<=b.r+6; }
+function doKrishna(){
+  if(state!=='play'||G.lowCD>0) return;
+  G.low=1.15; G.lowCD=2.3; sfx.krishna(); pop(170,300,'Krishna lowers the chariot','#9fc0ff');
+}
+function doAstra(){
+  if(state!=='play'||G.astra<100) return;
+  G.astra=0; G.astraFx=1.5; sfx.astra(); G.flash=.7; G.flashC='255,226,140'; G.shake=.5;
+  setTimeout(()=>{ if(state!=='play') return;
+    for(const e of G.enemies) if(!e.dead && e.type!=='sur') killEnemy(e,true);
+    G.eArrows.length=0; if(G.boss&&!G.boss.dead){ damageBoss(3); }
+    say('Krishna',"The astra spares those who lay down their arms.",3.5);
+  },420);
+}
+function pointerDown(e){
+  initAudio(); const p=toCanvas(e); mouse=p;
+  if(state==='title'){ newGame(); startDay(0); return; }
+  if(state==='over'||state==='win'){ if(G.endT>1.4){ newGame(); state='title'; } return; }
+  if(state==='inter'){ if(G.interT>1.8) nextDay(); return; }
+  if(inBtn(p,BTN.krishna)) return doKrishna();
+  if(inBtn(p,BTN.astra)) return doAstra();
+  G.drawing=true; G.drawT=0; try{cv.setPointerCapture(e.pointerId);}catch(_){}
+}
+function pointerUp(e){
+  mouse=toCanvas(e);
+  if(state==='play'&&G.drawing){ G.drawing=false; loose(); }
+}
+cv.addEventListener('pointerdown',pointerDown);
+cv.addEventListener('pointermove',e=>{ mouse=toCanvas(e); });
+cv.addEventListener('pointerup',pointerUp);
+cv.addEventListener('pointercancel',()=>{ if(G) G.drawing=false; });
+addEventListener('keydown',e=>{
+  initAudio();
+  if([' ','ArrowDown','Enter','q','Q','e','E','s','S'].includes(e.key)) e.preventDefault();
+  if(e.repeat) return;
+  const k=e.key;
+  if(k==='m'||k==='M') return setMute(!muted);
+  if(state==='title'&&(k==='Enter'||k===' ')){ newGame(); startDay(0); return; }
+  if((state==='over'||state==='win')&&(k==='Enter'||k===' ')&&G.endT>1.4){ newGame(); state='title'; return; }
+  if(state==='inter'&&(k==='Enter'||k===' ')&&G.interT>1.8){ nextDay(); return; }
+  if(k===' '||k==='ArrowDown'||k==='s'||k==='S') doKrishna();
+  if(k==='q'||k==='Q'||k==='e'||k==='E') doAstra();
+});
+addEventListener('blur',()=>{ if(G) G.drawing=false; });
+
+/* ═════════════════════════ BOW & ARROWS ═════════════════════════ */
+const CX=150;
+const floorY=()=>408+G.lowAmt*12;
+const bowPos=()=>({x:CX+0,y:floorY()-60});
+const power=()=>clamp(G.drawT/.75,0,1);
+const ARROW_G=560, arrowV=p=>520+640*p;
+// Solve the arc that carries the arrow to the cursor at draw-strength p. If the
+// cursor is out of reach at that strength, loft at the furthest-reaching angle.
+function aimAngle(p=.8){
+  const o=bowPos(), x=mouse.x-o.x, Y=-(mouse.y-o.y), v2=Math.pow(arrowV(p),2);
+  if(x<40) return clamp(Math.atan2(mouse.y-o.y,mouse.x-o.x),-1.15,.35);
+  const disc=v2*v2-ARROW_G*(ARROW_G*x*x+2*Y*v2);
+  const th=disc<0?Math.atan(v2/(ARROW_G*x)):Math.atan((v2-Math.sqrt(disc))/(ARROW_G*x));
+  return clamp(-th,-1.15,.35);
+}
+function loose(){
+  if(G.cool>0){ return; }
+  const p=Math.max(.12,power()), a=aimAngle(p), o=bowPos(), v=arrowV(p);
+  G.arrows.push({x:o.x+Math.cos(a)*34,y:o.y+Math.sin(a)*34,vx:Math.cos(a)*v,vy:Math.sin(a)*v,stuck:0,life:4});
+  G.cool=.22; sfx.shoot(p);
+}
+function damageBoss(n){
+  const b=G.boss; if(!b||b.dead) return;
+  b.hp-=n; b.hit=.15; sfx.hit(); spawnPetals(b.x-60,b.y-70,6,[C.gold,'#fff3b0']);
+  if(b.wheel==='sunk'){ G.struckWhileWheel=true; }
+  if(b.hp<=0){ b.dead=true; b.deadT=0; G.enemies.forEach(e=>{ if(!e.dead&&e.type!=='sur') killEnemy(e,true); }); G.nag=null; G.eArrows.length=0;
+    for(let i=0;i<5;i++) setTimeout(()=>spawnPetals(b.x-60+rnd(-50,50),b.y-80+rnd(-40,40),22),i*180);
+    G.score+=500; sfx.astra(); }
+}
+
+/* ═════════════════════════ UPDATE ═════════════════════════ */
+function nextDay(){ startDay(G.day+1); }
+function dayCleared(){
+  G.score+=100*(G.day+1);
+  if(DAYS[G.day].boss){ state='win'; G.endT=0; G.say=null; sfx.bless(); return; }
+  state='inter'; G.interT=0; G.say=null; sfx.bless();
+}
+function update(dt){
+  G.t+=dt; G.endT+=dt;
+  // sky drift
+  const tg=DAYS[state==='title'?0:G.day].sky, k=Math.min(1,dt*1.4);
+  sky.top=mix(sky.top,tg.top,k); sky.mid=mix(sky.mid,tg.mid,k); sky.hor=mix(sky.hor,tg.hor,k);
+  sky.sunY=lerp(sky.sunY,tg.sunY,k); sky.sunR=lerp(sky.sunR,tg.sunR,k);
+  for(const p of G.parts){ p.life-=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; if(p.k==='petal'){ p.vy+=160*dt; p.rot+=p.vr*dt; p.vx*=.99; } else { p.s+=14*dt; } }
+  G.parts=G.parts.filter(p=>p.life>0);
+  for(const p of G.pops){ p.t-=dt; p.y-=26*dt; } G.pops=G.pops.filter(p=>p.t>0);
+  G.shake=Math.max(0,G.shake-dt); G.flash=Math.max(0,G.flash-dt); G.astraFx=Math.max(0,G.astraFx-dt);
+  if(state==='inter'){ G.interT+=dt; return; }
+  if(state==='title'){ return; }
+  if(state==='over'||state==='win'){ if(G.boss&&G.boss.dead) G.boss.deadT+=dt; return; }
+
+  G.dayT+=dt; G.bannerT=Math.max(0,G.bannerT-dt);
+  G.low=Math.max(0,G.low-dt); G.lowCD=Math.max(0,G.lowCD-dt); G.cool=Math.max(0,G.cool-dt);
+  G.lowAmt+=((G.low>0?1:0)-G.lowAmt)*Math.min(1,dt*12);
+  if(G.drawing) G.drawT=Math.min(.75,G.drawT+dt);
+  G.drumT-=dt; if(G.drumT<=0){ sfx.drum(); G.drumT=1.15; }
+
+  // speech queue
+  for(const q of G.sayQ){ if(!q.done && G.dayT>=q.at && (!G.say||G.say.t<=0)){ q.done=true; say(q.who,q.text,q.dur); } }
+  if(G.say) G.say.t-=dt;
+
+  const d=DAYS[G.day];
+  // spawning
+  if(!d.boss){
+    G.spawnT-=dt;
+    if(G.spawnLeft>0 && G.spawnT<=0){ spawnOne(); G.spawnLeft--; G.spawnT=d.gap*rnd(.7,1.3); }
+  } else {
+    if(!G.boss && G.dayT>6){
+      G.boss={x:W+260,targetX:770,y:GY+22,hp:16,max:16,hit:0,t:0,shoot:2.5,nagT:5,warn:0,wheel:null,wheelT:0,dead:false,deadT:0,state:'enter'};
+    }
+    if(G.boss&&!G.boss.dead&&G.boss.state==='fight'){ G.trickleT-=dt; if(G.trickleT<=0){ spawnTrickle(); G.trickleT=d.trickle*rnd(.8,1.4); } }
+  }
+
+  // enemies
+  for(const e of G.enemies){
+    if(e.dead) continue; e.t+=dt; e.hit=Math.max(0,e.hit-dt);
+    const D=ED[e.type], s=scl(e);
+    if(e.type==='arch'){
+      if(e.x>e.stopX) e.x-=D.sp*dt; else { e.shoot-=dt; if(e.shoot<=0){ e.shoot=rnd(2.4,3.8); fireEArrow(e); } }
+    } else e.x-=D.sp*dt;
+    if(Math.random()<dt*3 && e.type!=='arch') spawnDust(e.x+8,e.y,1);
+    if(e.type!=='arch' && e.x+D.fx*s<=REACH){
+      e.dead=true;
+      if(e.type==='sur'){ addDharma(7,'Blessed — a warrior of dharma',C.cream); G.bless=1; sfx.bless(); spawnPetals(e.x,e.y-40,14,[C.white,C.gold,'#ffd9e0']); }
+      else { hurtPlayer(e.type==='ele'?24:e.type==='char'?14:8, e.type==='ele'?'The elephant crashes in!':'They are upon us!'); spawnPetals(REACH,e.y-30,8); }
+    }
+  }
+  G.enemies=G.enemies.filter(e=>!e.dead||false);
+  if(!G.sawSur && G.enemies.some(e=>e.type==='sur'&&e.x<W-40)){
+    G.sawSur=true; G.say=null; say('Krishna',"That one has laid down his arms. Dharma forbids you to strike him.",5.5);
+  }
+
+  // player arrows
+  for(const a of G.arrows){
+    if(a.stuck>0){ a.stuck-=dt; continue; }
+    a.life-=dt;
+    for(let s=0;s<3;s++){
+      a.x+=a.vx*dt/3; a.vy+=ARROW_G*dt/3; a.y+=a.vy*dt/3;
+      let hitDone=false;
+      for(const e of G.enemies){
+        if(e.dead) continue; const D=ED[e.type], sc=scl(e);
+        const x0=e.x+D.box[0]*sc-3, x1=e.x+D.box[1]*sc+3, y1=e.y+4, y0=e.y-D.box[2]*sc-3;
+        if(a.x>x0&&a.x<x1&&a.y>y0&&a.y<y1){
+          hitDone=true; a.stuck=0; a.life=0;
+          if(e.type==='sur'){ e.dead=true; addDharma(-24,'ADHARMA! He had laid down his arms','#ff8a6a'); G.combo=0; sfx.bad(); G.shake=.3; G.flash=.35; G.flashC='60,30,120'; spawnPetals(e.x,e.y-30,10,[C.white,'#ccc']); }
+          else { e.hp--; e.hit=.14; sfx.hit(); if(e.hp<=0) killEnemy(e,false); else spawnPetals(a.x,a.y,3); }
+          break;
+        }
+      }
+      const b=G.boss;
+      if(!hitDone && b && !b.dead && b.state!=='enter'){
+        const x0=b.x-250, x1=b.x+50, y0=b.y-125, y1=b.y+4;
+        if(a.x>x0&&a.x<x1&&a.y>y0&&a.y<y1){ damageBoss(1); a.life=0; hitDone=true; }
+      }
+      if(hitDone) break;
+      if(a.y>GY+58){ a.stuck=1.2; a.vx=a.vy=0; a.y=GY+58; break; }
+    }
+  }
+  G.arrows=G.arrows.filter(a=>a.life>0||a.stuck>0);
+
+  // enemy arrows
+  for(const a of G.eArrows){
+    a.x+=a.vx*dt; a.vy+=a.gr*dt; a.y+=a.vy*dt;
+    if(a.x<340&&a.x>100&&a.y>285&&a.y<440){ a.dead=true; hurtPlayer(a.dmg,null); spawnPetals(a.x,a.y,3,['#ddd',C.gold]); }
+    if(a.y>H||a.x<0) a.dead=true;
+  }
+  G.eArrows=G.eArrows.filter(a=>!a.dead);
+
+  // Karna
+  const b=G.boss;
+  if(b){
+    b.t+=dt; b.hit=Math.max(0,b.hit-dt);
+    if(b.dead){ b.deadT+=dt; if(b.deadT>3.2 && state==='play') dayCleared(); }
+    else if(b.state==='enter'){ b.x-=130*dt; if(b.x<=b.targetX){ b.x=b.targetX; b.state='fight'; } }
+    else {
+      if(b.wheel==='sunk'){
+        b.wheelT-=dt; if(b.wheelT<=0){ b.wheel='done'; say('Karna',"The wheel is free! Now, Arjuna — to the end!",3); b.shoot=1; b.fury=true; }
+      } else {
+        if(b.hp<=b.max*.4 && !b.wheel){
+          b.wheel='sunk'; b.wheelT=7.5; b.warn=0; G.nag=null; G.say=null;
+          say('Krishna',"His wheel has sunk. He stoops to free it, unarmed. Strike — or wait, Partha? Weigh it.",6.5);
+          sfx.bless();
+        }
+        b.shoot-=dt; if(b.shoot<=0){
+          b.shoot=b.fury?rnd(1.0,1.7):rnd(1.7,2.6);
+          const x=b.x-230, y=b.y-90, tx=190, ty=360, T=Math.hypot(tx-x,ty-y)/420, gr=260;
+          G.eArrows.push({x,y,vx:(tx-x)/T,vy:(ty-y)/T-.5*gr*T,gr,dmg:8});
+        }
+        if(b.warn>0){
+          b.warn-=dt;
+          if(b.warn<=0){ G.nag={x:b.x-250,y:338,t:0}; }
+        } else if(!G.nag){
+          b.nagT-=dt; if(b.nagT<=0){ b.nagT=b.fury?rnd(5,6.5):rnd(6.5,8.5); b.warn=1.25; sfx.hiss(); G.say=null; say('Krishna',"The Nagastra! Call me, Partha — SPACE!",1.8); }
+        }
+      }
+    }
+  }
+  const n=G.nag;
+  if(n){
+    n.t+=dt; n.x-=820*dt;
+    if(n.x<=205){
+      if(G.lowAmt>.55){ G.crownBroken=true; sfx.crown(); pop(200,262,'The serpent-arrow shatters only your crown!',C.gold); spawnPetals(180,320,16,[C.gold,'#fff3b0']); G.shake=.4; }
+      else hurtPlayer(40,'The Nagastra strikes!');
+      G.nag=null;
+    }
+  }
+
+  // clear
+  if(!DAYS[G.day].boss && G.spawnLeft<=0 && G.enemies.length===0 && G.eArrows.length===0 && state==='play'){
+    G.clearT=(G.clearT||0)+dt; if(G.clearT>1.6){ G.clearT=0; dayCleared(); }
+  } else G.clearT=0;
+  G.bless=Math.max(0,G.bless-dt);
+}
+
+/* ═════════════════════════ DRAWING HELPERS ═════════════════════════ */
+function outline(){ g.lineWidth=2; g.strokeStyle=C.ink; g.lineJoin='round'; g.lineCap='round'; }
+function ell(x,y,rx,ry,fill,rot=0){ g.beginPath(); g.ellipse(x,y,rx,ry,rot,0,7); g.fillStyle=fill; g.fill(); g.stroke(); }
+function circ(x,y,r,fill){ ell(x,y,r,r,fill); }
+function poly(pts,fill){ g.beginPath(); pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])); g.closePath(); g.fillStyle=fill; g.fill(); g.stroke(); }
+function limb(x1,y1,x2,y2,w,col){ g.beginPath(); g.moveTo(x1,y1); g.lineTo(x2,y2); g.strokeStyle=C.ink; g.lineWidth=w+3; g.stroke(); g.strokeStyle=col; g.lineWidth=w; g.stroke(); g.strokeStyle=C.ink; g.lineWidth=2; }
+function ln(x1,y1,x2,y2,col,w=2){ g.beginPath(); g.moveTo(x1,y1); g.lineTo(x2,y2); g.strokeStyle=col; g.lineWidth=w; g.stroke(); g.strokeStyle=C.ink; g.lineWidth=2; }
+function txt(s,x,y,size,col,align='left',stroke=null,weight=''){
+  g.font=`${weight} ${size}px ${FONT}`; g.textAlign=align; g.textBaseline='alphabetic';
+  if(stroke){ g.lineWidth=Math.max(3,size/6); g.strokeStyle=stroke; g.lineJoin='round'; g.strokeText(s,x,y); }
+  g.fillStyle=col; g.fillText(s,x,y);
+}
+function wrap(s,maxW){ const out=[]; let cur=''; for(const w of s.split(' ')){ const t=cur?cur+' '+w:w; if(g.measureText(t).width>maxW&&cur){ out.push(cur); cur=w; } else cur=t; } out.push(cur); return out; }
+function wheelDraw(x,y,r,rot){
+  g.save(); outline(); g.translate(x,y); g.rotate(rot);
+  circ(0,0,r,'#4a2414'); g.beginPath(); g.arc(0,0,r-4,0,7); g.strokeStyle=C.gold; g.lineWidth=3; g.stroke();
+  for(let i=0;i<8;i++){ const a=i*Math.PI/4; ln(0,0,Math.cos(a)*(r-4),Math.sin(a)*(r-4),C.gold,2.5); }
+  circ(0,0,r*.24,C.vermil); circ(0,0,r*.1,C.gold); g.restore();
+}
+function horse(x,y,d,s,ph,body,mane){
+  g.save(); g.translate(x,y); g.scale(d*s,s); outline();
+  for(const [lx,off] of [[-26,0],[-14,3.1],[20,1.6],[30,4.7]]){
+    const a=Math.sin(ph+off)*.55; g.save(); g.translate(lx,-34); g.rotate(a);
+    g.beginPath(); g.moveTo(-3.5,0); g.lineTo(3.5,0); g.lineTo(2.5,34); g.lineTo(-2.5,34); g.closePath(); g.fillStyle=body; g.fill(); g.stroke();
+    g.fillStyle=C.ink; g.fillRect(-3,32,6,4); g.restore();
+  }
+  poly([[-36,-52],[-52,-30],[-46,-24],[-34,-40]],mane);                        // tail
+  ell(0,-48,38,17,body);                                                       // body
+  poly([[26,-56],[44,-84],[58,-78],[42,-44]],body);                            // neck
+  poly([[44,-84],[70,-70],[68,-60],[52,-66],[46,-72]],body);                   // head
+  poly([[28,-60],[44,-90],[40,-92],[24,-64]],mane);                            // mane
+  poly([[46,-86],[44,-96],[51,-88]],body);                                     // ear
+  circ(56,-74,1.8,C.ink);
+  ln(-8,-64,-8,-32,C.vermil,4); ln(22,-64,22,-33,C.vermil,4);                  // harness
+  for(const hx of [-8,22]) circ(hx,-48,3,C.gold);
+  ln(58,-62,66,-62,C.vermil,3);
+  g.restore();
+}
+function warrior(x,y,s,t,o){
+  g.save(); g.translate(x,y); g.scale(o.dir*s,s); outline();
+  const sw=o.still?0:Math.sin(t*6);
+  limb(-4,-24,-4+sw*8,-2,7,o.skin); limb(4,-24,4-sw*8,-2,7,o.skin);
+  poly([[-9,-30],[9,-30],[12,-12],[-12,-12]],o.dhoti);
+  poly([[-9,-48],[9,-48],[8,-28],[-8,-28]],o.col);
+  ln(-8,-30,8,-30,C.gold,3);
+  if(o.weapon==='spear'){
+    limb(-6,-44,-9,-32,5,o.skin); ln(10,-30,14,-98,'#5a3a1e',3); poly([[11,-98],[17,-98],[14,-110]],'#d8d8d8');
+    limb(7,-44,13,-33,5,o.skin); circ(15,-36,10,o.shield||C.maroon); circ(15,-36,3.5,C.gold);
+  } else if(o.weapon==='bow'){
+    limb(-6,-44,-1,-38,5,o.skin); limb(7,-44,17,-40,5,o.skin);
+    g.beginPath(); g.arc(14,-40,19,-1.25,1.25); g.strokeStyle=C.ink; g.lineWidth=5; g.stroke(); g.strokeStyle='#8a5a2a'; g.lineWidth=3; g.stroke();
+    ln(14+19*Math.cos(1.25),-40-19*Math.sin(1.25),14+19*Math.cos(1.25),-40+19*Math.sin(1.25),'#eee',1);
+    g.lineWidth=2; g.strokeStyle=C.ink;
+  } else if(o.weapon==='folded'){
+    limb(-6,-44,4,-38,5,o.skin); limb(6,-44,5,-38,5,o.skin); circ(5,-38,3.2,o.skin);
+  }
+  circ(0,-55,7,o.skin);
+  if(o.surr){ poly([[-8,-56],[0,-66],[8,-56],[7,-52],[-7,-52]],C.white); }
+  else { poly([[-7,-57],[0,-66],[7,-57]],o.helm||'#8a8a96'); poly([[0,-66],[-3,-72],[3,-72]],o.plume||C.vermil); }
+  g.restore();
+}
+function eleph(x,y,s,t){
+  g.save(); g.translate(x,y); g.scale(s,s); outline();
+  const sw=i=>Math.sin(t*3+i*1.6)*5;
+  [[-42,0],[-20,2],[24,1],[46,3]].forEach(([lx,i],k)=>{ g.fillStyle=k%2?'#44476a':'#4f5278'; g.beginPath(); g.rect(lx-9,-52+Math.max(0,-sw(i)),18,52-Math.max(0,-sw(i))); g.fill(); g.stroke(); ell(lx,-2,10,4,'#d9cdb0'); });
+  ell(0,-78,66,40,'#5a5d82');
+  // caparison
+  poly([[-48,-112],[48,-112],[60,-52],[-60,-52]],C.vermil);
+  poly([[-40,-104],[40,-104],[50,-58],[-50,-58]],C.maroon);
+  for(let i=-5;i<=5;i++){ poly([[i*10-5,-52],[i*10+5,-52],[i*10,-42]],C.gold); circ(i*10,-40,2.5,C.gold); }
+  ln(-50,-60,50,-60,C.gold,3);
+  circ(0,-82,10,C.gold); circ(0,-82,5,C.vermil);
+  // head
+  ell(-70,-84,30,31,'#5a5d82'); ell(-52,-88,16,24,'#6a6d96',.2);
+  poly([[-92,-104],[-62,-112],[-58,-92],[-86,-88]],C.vermil); circ(-76,-102,4,C.gold);
+  g.beginPath(); g.moveTo(-90,-72); g.quadraticCurveTo(-108,-50,-104,-22); g.quadraticCurveTo(-102,-8,-86,-12);
+  g.strokeStyle=C.ink; g.lineWidth=20; g.stroke(); g.strokeStyle='#5a5d82'; g.lineWidth=16; g.stroke(); g.lineWidth=2; g.strokeStyle=C.ink;
+  g.beginPath(); g.moveTo(-84,-70); g.quadraticCurveTo(-114,-62,-118,-44); g.strokeStyle=C.ink; g.lineWidth=9; g.stroke(); g.strokeStyle='#f1e6c4'; g.lineWidth=5; g.stroke(); g.strokeStyle=C.ink; g.lineWidth=2;
+  circ(-78,-90,2.4,C.ink);
+  // howdah + rider
+  poly([[-26,-118],[26,-118],[30,-140],[-30,-140]],C.gold);
+  poly([[-22,-138],[22,-138],[22,-146],[-22,-146]],C.vermil);
+  warrior(0,-116,.78,t,{dir:-1,still:true,weapon:'spear',skin:'#b9774a',col:'#a02a2a',dhoti:C.white,helm:'#b8923a',plume:C.vermil});
+  g.restore();
+}
+function enemyChariot(x,y,s,t,o={}){
+  g.save(); g.translate(x,y); g.scale(s,s); outline();
+  const ph=t*9;
+  ln(-34,-44,-118,-40,'#6a4a2a',5);
+  horse(-124,0,-1,.8,ph,o.horse||'#33282b',C.gold); horse(-92,0,-1,.8,ph+1.7,o.horse2||'#4b3a3a',C.vermil);
+  // body
+  poly([[-36,-30],[40,-30],[40,-74],[-24,-74],[-40,-52]],o.body||C.maroon);
+  poly([[-30,-34],[34,-34],[34,-68],[-22,-68],[-34,-52]],o.panel||C.indigo);
+  for(let i=0;i<4;i++) poly([[-20+i*14,-40],[-13+i*14,-52],[-6+i*14,-40]],C.gold);
+  ln(-38,-54,38,-74+0,C.gold,0.1); ln(-36,-30,40,-30,C.gold,3);
+  wheelDraw(6,-28,28,-t*(o.spin||5));
+  // banner
+  ln(30,-74,30,-128,'#5a3a1e',3);
+  const wv=Math.sin(t*5)*4; poly([[30,-128],[30,-104],[8+wv,-112],[10+wv,-124]],o.flag||C.vermil); circ(20,-116,3,C.gold);
+  if(o.karna){
+    // halo of the Sun
+    g.save(); g.globalAlpha=.55; for(let i=0;i<16;i++){ const a=i*Math.PI/8+t*.3; g.fillStyle=C.gold; g.beginPath(); g.moveTo(Math.cos(a-.09)*40,-116+Math.sin(a-.09)*40); g.lineTo(Math.cos(a)*62,-116+Math.sin(a)*62); g.lineTo(Math.cos(a+.09)*40,-116+Math.sin(a+.09)*40); g.fill(); } g.restore();
+    circ(-4,-116,34,'rgba(255,215,110,.55)');
+  }
+  if(!o.norider) warrior(-2,-72,o.karna?1.35:1.0,t,{dir:-1,still:true,weapon:o.karna?'bow':'spear',skin:o.karna?'#e0a96a':'#b9774a',col:o.karna?C.gold:'#a02a2a',dhoti:o.karna?C.white:C.indigo,helm:o.karna?C.gold:'#8a8a96',plume:o.karna?C.vermil:C.vermil});
+  g.restore();
+}
+
+/* ═════════════════════════ BACKGROUND ═════════════════════════ */
+function diamond(x,y,r,col){ g.beginPath(); g.moveTo(x,y-r); g.lineTo(x+r,y); g.lineTo(x,y+r); g.lineTo(x-r,y); g.closePath(); g.fillStyle=col; g.fill(); }
+function drawSun(cx,cy,r,t){
+  g.save(); g.globalAlpha=.28; g.fillStyle='#ffe8a8';
+  for(let i=0;i<28;i++){ const a=t*.05+i*Math.PI/14, L=r*(i%2?2.0:2.5);
+    g.beginPath(); g.moveTo(cx+Math.cos(a-.045)*r*1.1,cy+Math.sin(a-.045)*r*1.1); g.lineTo(cx+Math.cos(a)*L,cy+Math.sin(a)*L); g.lineTo(cx+Math.cos(a+.045)*r*1.1,cy+Math.sin(a+.045)*r*1.1); g.fill(); }
+  g.restore();
+  g.save(); outline(); circ(cx,cy,r,'#f6b13a'); circ(cx,cy,r*.82,'#f8cd5a'); circ(cx,cy,r*.5,'#fbe5a0');
+  g.beginPath(); g.arc(cx,cy,r*.66,0,7); g.setLineDash([3,6]); g.strokeStyle=C.vermil; g.lineWidth=2; g.stroke(); g.setLineDash([]); g.restore();
+}
+function drawBackground(t){
+  const gr=g.createLinearGradient(0,0,0,GY); gr.addColorStop(0,rgb(sky.top)); gr.addColorStop(.55,rgb(sky.mid)); gr.addColorStop(1,rgb(sky.hor));
+  g.fillStyle=gr; g.fillRect(0,0,W,H);
+  const dark=clamp((60-sky.top[2]+30)/80,0,1);
+  for(const s of stars){ g.globalAlpha=(.25+.5*Math.sin(t*1.5+s.p)*.5+.25)*dark; g.fillStyle='#fff'; g.fillRect(s.x,s.y,s.r,s.r); } g.globalAlpha=1;
+  drawSun(680,sky.sunY,sky.sunR,t);
+  // far ridges
+  g.save(); outline();
+  g.fillStyle='rgba(54,32,86,.55)'; g.beginPath(); g.moveTo(0,GY-20);
+  for(let x=0;x<=W;x+=40) g.lineTo(x,GY-58-Math.sin(x*.011+1)*26-Math.sin(x*.031)*10); g.lineTo(W,GY); g.lineTo(0,GY); g.fill();
+  // camps
+  const tents=[[70,0],[250,1],[430,0],[600,1],[790,0],[915,1]];
+  for(const [tx,v] of tents){ const by=GY-24, w=v?56:44, h=v?36:30;
+    poly([[tx-w/2,by],[tx,by-h],[tx+w/2,by]],v?C.maroon:'#6a2f55'); ln(tx,by-h,tx,by-h-16,C.ink,2);
+    poly([[tx,by-h-16],[tx+14+Math.sin(t*3+tx)*2,by-h-12],[tx,by-h-8]],v?C.gold:C.vermil);
+    for(let i=0;i<3;i++) poly([[tx-w/2+6+i*15,by],[tx-w/2+13+i*15,by-9],[tx-w/2+20+i*15,by]],C.gold); }
+  g.restore();
+  // ground
+  const gg=g.createLinearGradient(0,GY-26,0,H); gg.addColorStop(0,'#b0693a'); gg.addColorStop(.35,'#8e4f2c'); gg.addColorStop(1,'#4d2616');
+  g.fillStyle=gg; g.fillRect(0,GY-26,W,H-GY+26); ln(0,GY-26,W,GY-26,C.ink,3);
+  for(const s of specks){ g.globalAlpha=s.a; g.fillStyle='#2a120a'; g.beginPath(); g.ellipse(s.x,s.y,s.r*2.2,s.r*.7,0,0,7); g.fill(); } g.globalAlpha=1;
+  // debris: planted spears & a broken wheel
+  g.save(); outline();
+  for(const [px,py] of [[420,470],[610,486],[830,458],[480,500],[720,500]]){ ln(px,py,px+4,py-62,'#5a3a1e',3); poly([[px+1,py-62],[px+7,py-62],[px+4,py-74]],'#ccc'); poly([[px+4,py-58],[px+22+Math.sin(t*3+px)*3,py-52],[px+4,py-44]],C.vermil); }
+  g.save(); g.translate(560,470); g.rotate(.5); g.scale(1,.55); wheelDraw(0,0,26,0); g.restore();
+  g.restore();
+}
+function drawFrameStatic(){
+  const f=document.createElement('canvas'); f.width=W; f.height=H; const c=f.getContext('2d'), b=14;
+  c.fillStyle=C.maroon; c.fillRect(0,0,W,b); c.fillRect(0,H-b,W,b); c.fillRect(0,0,b,H); c.fillRect(W-b,0,b,H);
+  const dia=(x,y,r,col)=>{ c.beginPath(); c.moveTo(x,y-r); c.lineTo(x+r,y); c.lineTo(x,y+r); c.lineTo(x-r,y); c.closePath(); c.fillStyle=col; c.fill(); };
+  for(let x=b+8;x<W-b;x+=22){ dia(x,b/2,4.5,C.gold); dia(x,H-b/2,4.5,C.gold); c.fillStyle=C.vermil; c.fillRect(x+9,b/2-1,2,2); c.fillRect(x+9,H-b/2-1,2,2); }
+  for(let y=b+8;y<H-b;y+=22){ dia(b/2,y,4.5,C.gold); dia(W-b/2,y,4.5,C.gold); }
+  c.strokeStyle=C.gold; c.lineWidth=2; c.strokeRect(b,b,W-2*b,H-2*b); c.strokeStyle=C.ink; c.lineWidth=2; c.strokeRect(1,1,W-2,H-2);
+  for(const [x,y] of [[b,b],[W-b,b],[b,H-b],[W-b,H-b]]){ c.beginPath(); c.arc(x,y,9,0,7); c.fillStyle=C.gold; c.fill(); c.strokeStyle=C.ink; c.stroke(); c.beginPath(); c.arc(x,y,4,0,7); c.fillStyle=C.vermil; c.fill(); }
+  return f;
+}
+const FRAME=drawFrameStatic();
+const VIG=(()=>{ const f=document.createElement('canvas'); f.width=W; f.height=H; const c=f.getContext('2d'); const r=c.createRadialGradient(W/2,H/2,H*.45,W/2,H/2,H*1.0); r.addColorStop(0,'rgba(10,2,20,0)'); r.addColorStop(1,'rgba(10,2,20,.55)'); c.fillStyle=r; c.fillRect(0,0,W,H); return f; })();
+
+/* ═════════════════════════ PLAYER DRAWING ═════════════════════════ */
+function drawPlayer(t){
+  const F=floorY(), lowK=G.lowAmt, p=(state==='play'&&G.drawing)?power():0, a=aimAngle(p?Math.max(.12,p):.8), o=bowPos();
+  // horses
+  const ph=t*(state==='play'?7:2.2);
+  horse(CX+232,F+38,1,.95,ph+1.2,'#d9d2c2',C.gold);
+  horse(CX+190,F+38,1,1.0,ph,'#f4efe2',C.vermil);
+  // pole, reins
+  g.save(); outline();
+  ln(CX+30,F-10,CX+215,F-28,'#6a4a2a',5);
+  // chariot body
+  poly([[CX-56,F-8],[CX+46,F-8],[CX+46,F-46],[CX+30,F-52],[CX-56,F-52]],C.maroon);
+  poly([[CX-50,F-12],[CX+40,F-12],[CX+40,F-44],[CX+28,F-48],[CX-50,F-48]],C.indigo);
+  for(let i=0;i<6;i++) poly([[CX-44+i*15,F-14],[CX-37+i*15,F-27],[CX-30+i*15,F-14]],C.gold);
+  for(let i=0;i<6;i++) diamond(CX-37+i*15,F-38,3.5,C.vermil);
+  ln(CX-56,F-8,CX+46,F-8,C.gold,4); ln(CX-56,F-52,CX+30,F-52,C.gold,3);
+  wheelDraw(CX-4,F+8+lowK*0,30,t*(state==='play'?-1.4:-.2));
+  // Hanuman banner
+  ln(CX-50,F-52,CX-50,F-150,'#5a3a1e',4);
+  const wv=Math.sin(t*4)*5;
+  poly([[CX-50,F-150],[CX-50,F-116],[CX-96+wv,F-126],[CX-90+wv,F-140]],'#e8761d');
+  circ(CX-74+wv*.4,F-132,5,C.gold); ln(CX-74+wv*.4,F-127,CX-74+wv*.4,F-118,C.ink,2);
+  g.restore();
+  // Krishna
+  const kx=CX+18, ky=F-8;
+  g.save(); outline();
+  limb(kx-4,ky-22,kx-5,ky-2,8,'#3b5fc0'); limb(kx+6,ky-22,kx+9,ky-2,8,'#3b5fc0');
+  poly([[kx-11,ky-30],[kx+11,ky-30],[kx+14,ky-12],[kx-14,ky-12]],'#f2c230');
+  poly([[kx-9,ky-52],[kx+9,ky-52],[kx+8,ky-30],[kx-8,ky-30]],'#3b5fc0'); ln(kx-8,ky-50,kx+8,ky-36,C.gold,3);
+  limb(kx+6,ky-48,kx+30,ky-40,6,'#3b5fc0');
+  circ(kx+1,ky-60,8,'#3b5fc0'); ln(kx+2,ky-65,kx+2,ky-62,C.vermil,2);
+  poly([[kx-7,ky-64],[kx+1,ky-72],[kx+9,ky-64]],C.gold);
+  ln(kx,ky-72,kx-3,ky-84,'#2f6b4f',2); ell(kx-3,ky-86,3.5,5,'#1e8fa0'); circ(kx-3,ky-86,1.5,'#f2c230');
+  g.beginPath(); g.moveTo(kx+30,ky-40); g.quadraticCurveTo(kx+110,ky-8,CX+205,F-40); g.strokeStyle=C.ink; g.lineWidth=2.5; g.stroke(); g.strokeStyle=C.vermil; g.lineWidth=1.2; g.stroke();
+  g.restore();
+  // Arjuna
+  const ax=CX-30, ay=F-8;
+  g.save(); outline();
+  limb(ax-4,ay-24,ax-5,ay-2,8,C.skin); limb(ax+6,ay-24,ax+8,ay-2,8,C.skin);
+  poly([[ax-12,ay-32],[ax+12,ay-32],[ax+16,ay-12],[ax-16,ay-12]],C.vermil);
+  poly([[ax-10,ay-56],[ax+10,ay-56],[ax+9,ay-32],[ax-9,ay-32]],C.gold); ln(ax-9,ay-34,ax+9,ay-34,C.ink,2); circ(ax,ay-44,3,C.vermil);
+  const dx=Math.cos(a), dy=Math.sin(a), px=-dy, py=dx, pull=2+p*20;
+  const hx=o.x-dx*pull, hy=o.y-dy*pull;
+  limb(ax+6,ay-52,o.x,o.y,6,C.skin); limb(ax-2,ay-52,hx,hy,6,C.skin);
+  circ(ax+1,ay-64,8.5,C.skin);
+  if(!G.crownBroken){ poly([[ax-8,ay-68],[ax-6,ay-80],[ax-2,ay-74],[ax+1,ay-84],[ax+4,ay-74],[ax+8,ay-80],[ax+9,ay-68]],C.gold); circ(ax+1,ay-76,2.5,C.vermil); }
+  else { poly([[ax-8,ay-68],[ax-6,ay-74],[ax-2,ay-70],[ax+9,ay-68]],C.gold); }
+  ln(ax-8,ay-62,ax-12,ay-56,C.ink,3);
+  // Gandiva
+  const T1=[o.x+px*30,o.y+py*30], T2=[o.x-px*30,o.y-py*30];
+  g.beginPath(); g.moveTo(T1[0],T1[1]); g.quadraticCurveTo(o.x+dx*26,o.y+dy*26,T2[0],T2[1]);
+  g.strokeStyle=C.ink; g.lineWidth=7; g.stroke(); g.strokeStyle=C.gold; g.lineWidth=4.5; g.stroke();
+  g.strokeStyle='#fff6d6'; g.lineWidth=1.2; g.beginPath(); g.moveTo(T1[0],T1[1]); g.lineTo(hx,hy); g.lineTo(T2[0],T2[1]); g.stroke();
+  if(G.cool<=0){ ln(hx,hy,o.x+dx*40,o.y+dy*40,'#d9c9a0',2.2); poly([[o.x+dx*40,o.y+dy*40],[o.x+dx*34+px*3,o.y+dy*34+py*3],[o.x+dx*34-px*3,o.y+dy*34-py*3]],'#ccc'); }
+  g.restore();
+  // aim preview
+  if(state==='play'&&G.drawing){
+    const v=arrowV(Math.max(.12,p)); let x=o.x+dx*34, y=o.y+dy*34, vx=dx*v, vy=dy*v;
+    for(let i=0;i<26;i++){ for(let k=0;k<2;k++){ x+=vx*.018; vy+=ARROW_G*.018; y+=vy*.018; vx=vx; }
+      if(y>GY+58) break; g.globalAlpha=.8*(1-i/28); g.fillStyle='#ffe9a8'; g.beginPath(); g.arc(x,y,2.4-i*.04,0,7); g.fill(); }
+    g.globalAlpha=1;
+  }
+}
+
+/* ═════════════════════════ ENEMY DRAWING ═════════════════════════ */
+function drawEnemy(e,t){
+  const s=scl(e); g.save();
+  if(e.hit>0){ g.globalAlpha=.78; }
+  switch(e.type){
+    case 'inf': warrior(e.x,e.y,s,e.t,{dir:-1,weapon:'spear',skin:'#b9774a',col:'#a02a2a',dhoti:C.indigo,helm:'#8a8a96',shield:C.maroon}); break;
+    case 'arch': warrior(e.x,e.y,s,e.t,{dir:-1,weapon:'bow',still:e.x<=e.stopX,skin:'#c2865a',col:'#5e3a8a',dhoti:'#d9c58a',helm:C.gold,plume:C.indigo}); break;
+    case 'sur': warrior(e.x,e.y,s,e.t,{dir:-1,weapon:'folded',surr:true,skin:'#c2865a',col:C.white,dhoti:C.white});
+      g.globalAlpha=.35+.25*Math.sin(e.t*4); circ(e.x,e.y-56*s,13*s,'rgba(255,240,190,.5)'); break;
+    case 'char': enemyChariot(e.x,e.y,s,e.t,{}); break;
+    case 'ele': eleph(e.x,e.y,s,e.t); break;
+  }
+  g.restore();
+  if(e.hit>0){ g.save(); g.globalAlpha=.4; g.fillStyle='#fff'; const D=ED[e.type]; g.fillRect(e.x+D.box[0]*s,e.y-D.box[2]*s,(D.box[1]-D.box[0])*s,D.box[2]*s); g.restore(); }
+}
+function drawBoss(b,t){
+  g.save();
+  if(b.dead){ g.globalAlpha=clamp(1-b.deadT/2.4,0,1); }
+  if(b.wheel==='sunk'){
+    g.save(); g.translate(b.x,b.y); g.rotate(.09); g.translate(-b.x,-b.y); enemyChariot(b.x,b.y+8,1.35,b.t,{karna:false,norider:true,body:'#7a5410',panel:C.maroon,flag:C.gold,spin:0,horse:'#2a1f22'}); g.restore();
+    // Karna kneels at the wheel, unarmed
+    warrior(b.x-40,b.y+14,1.45,b.t,{dir:1,still:true,weapon:'none',skin:'#e0a96a',col:C.gold,dhoti:C.white,helm:C.gold,plume:C.vermil});
+    g.globalAlpha=.5+.3*Math.sin(b.t*5); txt('?',b.x-40,b.y-110,34,C.cream,'center',C.ink);
+  } else {
+    enemyChariot(b.x,b.y,1.35,b.t,{karna:true,body:'#7a5410',panel:C.maroon,flag:C.gold,spin:b.state==='enter'?10:2,horse:'#efe8d6',horse2:'#d8cfb8'});
+  }
+  g.restore();
+  if(b.hit>0){ g.save(); g.globalAlpha=.35; g.fillStyle='#fff'; g.fillRect(b.x-250,b.y-125,300,130); g.restore(); }
+}
+function drawNag(n,t){
+  g.save();
+  const gl=g.createRadialGradient(n.x,n.y,2,n.x,n.y,70); gl.addColorStop(0,'rgba(190,255,150,.8)'); gl.addColorStop(1,'rgba(60,200,90,0)');
+  g.fillStyle=gl; g.fillRect(n.x-70,n.y-70,140,140);
+  outline();
+  for(let i=22;i>=0;i--){ const x=n.x+i*9, y=n.y+Math.sin(i*.8+t*18)*8, r=10-i*.28; circ(x,y,Math.max(2,r),i%2?'#2f8f4f':C.gold); }
+  poly([[n.x-4,n.y],[n.x+10,n.y-14],[n.x+14,n.y],[n.x+10,n.y+14]],'#2f8f4f'); circ(n.x-4,n.y-2,3,C.vermil);
+  g.restore();
+}
+
+/* ═════════════════════════ HUD ═════════════════════════ */
+function bar(x,y,w,h,f,c1,c2,label,pulse){
+  txt(label,x,y-3,13,C.cream,'left',C.ink);
+  g.save(); outline(); g.fillStyle='rgba(20,8,24,.7)'; g.fillRect(x,y,w,h); g.restore();
+  const gr=g.createLinearGradient(x,0,x+w,0); gr.addColorStop(0,c1); gr.addColorStop(1,c2);
+  g.fillStyle=gr; g.fillRect(x,y,w*clamp(f,0,1),h);
+  if(pulse){ g.globalAlpha=.4+.4*Math.sin(G.t*8); g.fillStyle='#fff'; g.fillRect(x,y,w,h); g.globalAlpha=1; }
+  g.strokeStyle=C.gold; g.lineWidth=2; g.strokeRect(x,y,w,h);
+  for(let i=1;i<10;i++){ g.fillStyle='rgba(26,15,31,.55)'; g.fillRect(x+w*i/10-.5,y,1,h); }
+}
+function drawHUD(t){
+  const d=DAYS[G.day];
+  txt(d.sa,28,40,22,C.gold,'left',C.ink); txt(d.en+' — '+d.host,28,60,13,C.cream,'left',C.ink);
+  bar(28,82,176,11,G.hp/100,'#a52a1a','#f08a2a','कवच  Kavacha');
+  bar(28,112,176,11,G.dharma/100,'#2f5fc0','#f4efe2','धर्म  Dharma');
+  bar(28,142,176,11,G.astra/100,'#b8801d','#fff1a8',G.astra>=100?'अस्त्र  Astra — press Q':'अस्त्र  Astra',G.astra>=100);
+  txt('यश  '+G.score,W-30,40,20,C.gold,'right',C.ink);
+  txt(muted?'🔇 M':'♪ M',W-30,60,13,C.cream,'right',C.ink);
+  if(G.boss&&!G.boss.dead){ const b=G.boss, w=190, x=W-30-w;
+    txt('कर्ण  Karna',W-30,96,15,C.gold,'right',C.ink); bar2(x,102,w,10,b.hp/b.max); }
+  // touch buttons
+  for(const [k,b] of Object.entries(BTN)){
+    const ready=k==='krishna'?G.lowCD<=0:G.astra>=100;
+    g.save(); g.globalAlpha=ready?.95:.5; outline(); circ(b.x,b.y,b.r,k==='krishna'?'#3b5fc0':'#b8801d');
+    g.beginPath(); g.arc(b.x,b.y,b.r-5,0,7); g.strokeStyle=C.gold; g.lineWidth=2; g.stroke();
+    txt(k==='krishna'?'कृष्ण':'अस्त्र',b.x,b.y+(k==='krishna'?-2:-1),k==='krishna'?17:15,C.white,'center',C.ink);
+    txt(k==='krishna'?'SPACE':'Q',b.x,b.y+16,10,C.cream,'center',C.ink); g.restore();
+  }
+  // speech
+  if(G.say&&G.say.t>0){
+    const s=G.say, al=clamp(Math.min(s.t,s.dur-s.t)*4,0,1); g.save(); g.globalAlpha=al; g.font=`16px ${FONT}`;
+    const lines=wrap(s.text,400), h=24+lines.length*21, x=320, y=26;
+    g.fillStyle='rgba(243,226,184,.96)'; g.strokeStyle=C.maroon; g.lineWidth=3; g.beginPath(); g.roundRect(x,y,430,h,8); g.fill(); g.stroke();
+    g.strokeStyle=C.gold; g.lineWidth=1.5; g.beginPath(); g.roundRect(x+4,y+4,422,h-8,5); g.stroke();
+    txt(s.who==='Krishna'?'श्रीकृष्ण · Krishna':'कर्ण · Karna',x+14,y+19,13,s.who==='Krishna'?'#27479a':C.vermil,'left');
+    g.font=`16px ${FONT}`; lines.forEach((l,i)=>txt(l,x+14,y+39+i*21,16,C.ink,'left'));
+    g.restore();
+  }
+  // day banner
+  if(G.bannerT>0){
+    const k=G.bannerT, al=clamp(Math.min(k*1.5,(3.6-k)*3),0,1); g.save(); g.globalAlpha=al;
+    txt(d.sa,W/2,206,56,C.gold,'center',C.ink); txt(d.en+' of the War',W/2,240,24,C.cream,'center',C.ink); txt(d.host,W/2,270,19,C.cream,'center',C.ink,'italic'); g.restore();
+  }
+}
+function bar2(x,y,w,h,f){ g.save(); outline(); g.fillStyle='rgba(20,8,24,.75)'; g.fillRect(x,y,w,h); g.fillStyle=C.gold; g.fillRect(x,y,w*clamp(f,0,1),h); g.strokeStyle=C.gold; g.lineWidth=2; g.strokeRect(x,y,w,h); g.restore(); }
+
+/* ═════════════════════════ OVERLAY SCREENS ═════════════════════════ */
+function veil(a=.6){ g.fillStyle=`rgba(14,4,22,${a})`; g.fillRect(0,0,W,H); }
+function panelRule(y,w=300){ ln(W/2-w/2,y,W/2+w/2,y,C.gold,2); diamond(W/2,y,5,C.gold); diamond(W/2-w/2-8,y,3,C.vermil); diamond(W/2+w/2+8,y,3,C.vermil); }
+function drawTitle(t){
+  veil(.35);
+  const pulse=.75+.25*Math.sin(t*2.6);
+  txt('धर्मक्षेत्र',W/2,168,100,C.gold,'center',C.ink);
+  txt('D H A R M A K S H E T R A',W/2,204,22,C.cream,'center',C.ink);
+  panelRule(222,360);
+  txt('धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः',W/2,262,22,C.cream,'center',C.ink);
+  txt('On the field of dharma, the field of the Kurus, they gathered, eager for battle.',W/2,284,15,'#e9d6ad','center',C.ink,'italic');
+  g.save(); g.globalAlpha=pulse; txt('Click, or press ENTER, to sound the conch',W/2,330,22,C.gold,'center','#120a1c'); g.restore();
+  g.font=`14px ${FONT}`;
+  txt('Hold the mouse to draw the Gandiva — longer reaches further · release to loose · SPACE — Krishna lowers the chariot · Q — divine astra · M — mute',W/2,H-34,13.5,C.cream,'center',C.ink);
+  txt('Strike the armed. Spare the one who bows in surrender.',W/2,H-56,15,'#ffd9a0','center',C.ink,'italic');
+}
+function drawInter(t){
+  veil(.78); const v=DAYS[G.day].verse, d=DAYS[G.day];
+  txt(d.sa+' — समाप्त',W/2,110,34,C.gold,'center',C.ink);
+  txt(d.en+' ends. The host of '+d.host.replace(/^The (Host of )?/,'')+' is broken.',W/2,140,16,C.cream,'center',C.ink);
+  panelRule(166,360);
+  txt(v.sa,W/2,232,32,C.cream,'center',C.ink);
+  txt(v.tr,W/2,266,17,'#e9d6ad','center',C.ink,'italic');
+  txt('“'+v.en+'”',W/2,302,22,C.white,'center',C.ink);
+  txt('— '+v.ref,W/2,332,15,C.gold,'center',C.ink);
+  panelRule(358,360);
+  txt(`Kavacha ${Math.round(G.hp)}%   ·   Dharma ${Math.round(G.dharma)}%   ·   Yasha ${G.score}`,W/2,390,17,C.cream,'center',C.ink);
+  if(G.interT>1.8){ g.save(); g.globalAlpha=.55+.45*Math.sin(t*3); txt('Click to march into the next day',W/2,440,20,C.gold,'center',C.ink); g.restore(); }
+}
+function drawOver(t){
+  const a=clamp(G.endT/1.2,0,1); g.save(); g.globalAlpha=a; veil(.82);
+  const dh=G.over==='dharma';
+  txt(dh?'धर्मो रक्षति रक्षितः':'पार्थः पतितः',W/2,150,48,dh?C.cream:C.vermil,'center',C.ink);
+  txt(dh?'Dharma abandoned':'Arjuna has fallen',W/2,190,26,C.gold,'center',C.ink);
+  panelRule(214,340);
+  const lines=dh?["You struck one who had laid down his arms.","Krishna lets go of the reins: \"Victory without dharma is only ash.\""]
+                :["The Gandiva falls silent. The conch is not sounded for you.","Krishna lifts the reins — \"Rise, Partha. The field still waits.\""];
+  lines.forEach((l,i)=>txt(l,W/2,256+i*28,18,C.cream,'center',C.ink));
+  txt(`Yasha  ${G.score}   ·   ${DAYS[G.day].en}`,W/2,350,20,C.gold,'center',C.ink);
+  if(G.endT>1.4){ g.globalAlpha=a*(.55+.45*Math.sin(t*3)); txt('Click to take up the bow again',W/2,420,20,C.gold,'center',C.ink); }
+  g.restore();
+}
+function drawWin(t){
+  const a=clamp(G.endT/1.4,0,1); g.save(); g.globalAlpha=a; veil(.8);
+  txt('जयः',W/2,128,64,C.gold,'center',C.ink); txt('Karna has fallen — the war is won',W/2,166,24,C.cream,'center',C.ink);
+  panelRule(188,380);
+  const lines=G.struckWhileWheel
+    ? ["You loosed the arrow while Karna knelt at his sunken wheel.","The war is won — yet the victory sits heavy. Dharma, Krishna says, is subtle."]
+    : ["You let Karna free his wheel, and met him as an equal.","The war is won — and your hands, as far as a war allows, are clean."];
+  lines.forEach((l,i)=>txt(l,W/2,228+i*26,17,C.cream,'center',C.ink));
+  if(G.crownBroken) txt('Your crown was lost to the Nagastra — Krishna\'s hands saved your life.',W/2,292,15,'#ffd9a0','center',C.ink,'italic');
+  txt('यत्र योगेश्वरः कृष्णो यत्र पार्थो धनुर्धरः',W/2,338,26,C.gold,'center',C.ink);
+  txt('Where there is Krishna, and Arjuna the archer, there are fortune and victory.  — Gita 18.78',W/2,362,14.5,'#e9d6ad','center',C.ink,'italic');
+  txt(`Yasha ${G.score}   ·   Dharma ${Math.round(G.dharma)}%   ·   Kavacha ${Math.round(G.hp)}%`,W/2,404,19,C.cream,'center',C.ink);
+  if(G.endT>1.4){ g.globalAlpha=a*(.55+.45*Math.sin(t*3)); txt('Click to play again',W/2,450,20,C.gold,'center',C.ink); }
+  g.restore();
+}
+
+/* ═════════════════════════ RENDER ═════════════════════════ */
+function render(){
+  const t=G.t;
+  g.save();
+  if(G.shake>0){ g.translate(rnd(-1,1)*G.shake*14,rnd(-1,1)*G.shake*14); }
+  drawBackground(t);
+  drawPlayer(t);
+  const list=G.enemies.slice().sort((a,b)=>a.y-b.y);
+  for(const e of list) drawEnemy(e,t);
+  if(G.boss) drawBoss(G.boss,t);
+  // Nagastra warning
+  if(G.boss&&G.boss.warn>0){ const b=G.boss; g.save(); g.globalAlpha=.25+.3*Math.sin(t*30); ln(b.x-250,338,215,338,'#9dff9d',3); g.restore();
+    g.save(); g.globalAlpha=.6+.4*Math.sin(t*22); outline(); poly([[190,258],[212,300],[168,300]],C.vermil); txt('!',190,294,28,C.white,'center',C.ink); g.restore(); }
+  if(G.nag) drawNag(G.nag,t);
+  // arrows
+  for(const a of G.arrows){
+    const ang=a.stuck>0?-.9:Math.atan2(a.vy,a.vx); g.save(); g.translate(a.x,a.y); g.rotate(ang); g.globalAlpha=a.stuck>0?clamp(a.stuck,0,1):1;
+    ln(-26,0,0,0,'#d9c9a0',2.5); poly([[0,-3],[9,0],[0,3]],'#e8e8e8'); ln(-26,0,-31,-4,C.vermil,2); ln(-26,0,-31,4,C.vermil,2); ln(-22,0,-27,-4,C.vermil,2); ln(-22,0,-27,4,C.vermil,2); g.restore();
+  }
+  for(const a of G.eArrows){ const ang=Math.atan2(a.vy,a.vx); g.save(); g.translate(a.x,a.y); g.rotate(ang); ln(-22,0,0,0,'#cdb88a',2.4); poly([[0,-3],[9,0],[0,3]],'#bbb'); ln(-22,0,-27,-3,'#555',2); ln(-22,0,-27,3,'#555',2); g.restore(); }
+  // particles
+  for(const p of G.parts){
+    const al=clamp(p.life/p.max*1.5,0,1);
+    if(p.k==='petal'){ g.save(); g.globalAlpha=al; g.translate(p.x,p.y); g.rotate(p.rot); g.fillStyle=p.c; g.strokeStyle=C.ink; g.lineWidth=1; g.beginPath(); g.ellipse(0,0,p.s,p.s*.5,0,0,7); g.fill(); g.stroke(); g.restore(); }
+    else { g.save(); g.globalAlpha=al*.35; g.fillStyle=p.c; g.beginPath(); g.arc(p.x,p.y,p.s,0,7); g.fill(); g.restore(); }
+  }
+  // astra sweep
+  if(G.astraFx>0){ const k=1-G.astraFx/1.5, x=190+k*900; g.save(); g.globalCompositeOperation='lighter';
+    const gr=g.createLinearGradient(x-260,0,x+30,0); gr.addColorStop(0,'rgba(255,200,80,0)'); gr.addColorStop(.85,'rgba(255,230,150,.7)'); gr.addColorStop(1,'rgba(255,255,255,0)');
+    g.fillStyle=gr; g.fillRect(x-260,0,290,H); g.restore(); }
+  for(const p of G.pops){ g.save(); g.globalAlpha=clamp(p.t*1.5,0,1); txt(p.txt,p.x,p.y,p.txt.length>12?16:19,p.col,'center',C.ink); g.restore(); }
+  g.restore();
+  g.drawImage(VIG,0,0);
+  if(G.flash>0){ g.fillStyle=`rgba(${G.flashC},${clamp(G.flash,0,.5)*.9})`; g.fillRect(0,0,W,H); }
+  if(state==='play'||state==='over'||state==='win') drawHUD(t);
+  g.drawImage(FRAME,0,0);
+  if(state==='title') drawTitle(t);
+  else if(state==='inter') drawInter(t);
+  else if(state==='over') drawOver(t);
+  else if(state==='win') drawWin(t);
+}
+
+/* ═════════════════════════ LOOP ═════════════════════════ */
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000); last=now;
+  try{ update(dt); render(); }catch(err){ console.error(err); }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+window.DK={ get G(){return G;}, get state(){return state;}, set state(v){state=v;}, startDay, newGame, damageBoss, endGame, dayCleared, setMouse(x,y){mouse={x,y};} };
+</script>
+</body>
+</html>
