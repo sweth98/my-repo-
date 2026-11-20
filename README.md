@@ -61,3 +61,16 @@ tests/
 pyproject.toml       # package metadata and the `numstats` console script
 requirements.txt     # test dependency (pytest); package itself is stdlib-only
 ```
+
+## 🎮 Code Quest — learn to code by playing
+
+`code-quest/index.html` is a self-contained browser game that teaches JavaScript
+basics. No install, no internet needed: just open the file in a browser.
+
+- **7 worlds**: Variables → Math → Functions → Decisions → Loops → Arrays → Objects
+- Every world: real-world analogy, **line-by-line code explainer**, editable playground
+- 40 challenges (quiz, predict-the-output, write code, bug hunts, bosses)
+- Points, combo multipliers, hints, 1-3 stars per world, player levels, badges
+- Progress is saved in your browser (`localStorage`)
+
+Sanity-check the content by opening the browser console and running `__selfTest()`.

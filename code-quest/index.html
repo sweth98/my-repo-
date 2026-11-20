@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Code Quest — Learn to Code by Playing</title>
+<style>
+:root{--bg:#0e1126;--bg2:#151a3a;--panel:#1b2148;--panel2:#232b5e;--ink:#eef0ff;--mute:#a3abd6;--acc:#ffd23f;--good:#3ddc97;--bad:#ff5d73;--pri:#7c5cff;--cyan:#35d0ff;--w:#7c5cff}
+*{box-sizing:border-box}
+html,body{margin:0;background:radial-gradient(1200px 700px at 15% -10%,#2a2f78 0%,transparent 60%),radial-gradient(900px 600px at 100% 0%,#4a1f78 0%,transparent 55%),var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+button{font:inherit;cursor:pointer;border:0;color:inherit}
+code,pre,textarea.editor,.cl{font-family:ui-monospace,"Cascadia Code","Fira Code",Menlo,Consolas,monospace}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:10px 18px;background:rgba(14,17,38,.88);backdrop-filter:blur(8px);border-bottom:1px solid #ffffff14;flex-wrap:wrap}
+.logo{font-weight:900;font-size:20px;letter-spacing:.3px;cursor:pointer;background:linear-gradient(90deg,var(--acc),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.xp{flex:1;min-width:180px;max-width:420px}
+.xp .lab{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-bottom:3px}
+.bar{height:10px;background:#ffffff14;border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--good),var(--cyan));border-radius:99px;transition:width .6s}
+.chips{display:flex;gap:8px;margin-left:auto;align-items:center;flex-wrap:wrap}
+.chip{background:var(--panel);padding:6px 11px;border-radius:99px;font-size:14px;font-weight:700;white-space:nowrap}
+.chip.btn:hover{background:var(--panel2)}
+main{max-width:900px;margin:0 auto;padding:22px 16px 80px}
+h1,h2,h3{margin:.2em 0 .4em}
+.hero{display:flex;gap:18px;align-items:center;background:linear-gradient(135deg,var(--panel),var(--panel2));padding:20px;border-radius:20px;margin-bottom:22px;border:1px solid #ffffff14}
+.hero .bit{font-size:64px;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(4deg)}}
+.hero p{margin:.3em 0;color:var(--mute);line-height:1.5}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.world{position:relative;background:var(--panel);border:2px solid color-mix(in srgb,var(--w) 55%,transparent);border-radius:18px;padding:16px;text-align:left;transition:transform .15s,box-shadow .15s;overflow:hidden}
+.world:not(.locked):hover{transform:translateY(-4px);box-shadow:0 10px 30px color-mix(in srgb,var(--w) 40%,transparent)}
+.world .num{position:absolute;right:12px;top:8px;font-size:44px;font-weight:900;opacity:.09}
+.world .em{font-size:38px}
+.world h3{color:var(--w);margin:.3em 0 .1em}
+.world p{margin:0 0 10px;color:var(--mute);font-size:13.5px;line-height:1.4}
+.world .meta{display:flex;justify-content:space-between;font-size:13px;margin-top:8px;color:var(--mute)}
+.world .st{color:var(--acc);letter-spacing:2px}
+.world.locked{opacity:.5;filter:grayscale(.7);cursor:not-allowed}
+.world.next{animation:pulse 1.8s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--w) 30%,transparent)}}
+.card{background:var(--panel);border:1px solid #ffffff14;border-radius:20px;padding:22px;margin-bottom:16px}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.wtitle{font-weight:800;color:var(--w);flex:1;text-align:center}
+.ghost{background:#ffffff12;padding:8px 14px;border-radius:12px;font-size:14px}
+.ghost:hover{background:#ffffff22}
+.pri{background:linear-gradient(135deg,var(--pri),#a45cff);padding:11px 20px;border-radius:14px;font-weight:800;box-shadow:0 4px 0 #4b36b3}
+.pri:active{transform:translateY(3px);box-shadow:0 1px 0 #4b36b3}
+.pri.go{background:linear-gradient(135deg,#22c58a,#3ddc97);box-shadow:0 4px 0 #168a5f;color:#06251b}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.grow{flex:1}
+.dots,.pips{display:flex;gap:6px;justify-content:center;margin:6px 0 14px}
+.dots i,.pips i{width:34px;height:8px;border-radius:9px;background:#ffffff1c}
+.dots i.cur,.pips i.cur{background:var(--w)}
+.dots i.ok,.pips i.ok{background:var(--good)}
+.real{background:color-mix(in srgb,var(--w) 16%,transparent);border-left:5px solid var(--w);padding:12px 14px;border-radius:12px;margin:12px 0;line-height:1.55}
+.card p{line-height:1.6;color:#dfe3ff}
+.codebox{background:#0a0d22;border:1px solid #ffffff1a;border-radius:14px;padding:8px 0;margin:12px 0;overflow-x:auto}
+.cl{display:flex;gap:12px;padding:5px 14px;font-size:15px;cursor:pointer;white-space:pre;border-left:4px solid transparent}
+.cl:hover{background:#ffffff0d}
+.cl.on{background:color-mix(in srgb,var(--w) 25%,transparent);border-left-color:var(--w)}
+.ln{color:#5d6699;user-select:none;min-width:14px;text-align:right}
+pre.code{background:#0a0d22;border:1px solid #ffffff1a;border-radius:14px;padding:14px 16px;overflow-x:auto;font-size:15px;line-height:1.5;margin:12px 0}
+.k{color:#ff79c6}.s{color:#f1fa8c}.n{color:#bd93f9}.c{color:#6f7aa8;font-style:italic}
+.explain{display:flex;gap:12px;background:#ffffff0d;border-radius:14px;padding:14px;align-items:flex-start;line-height:1.55;min-height:70px}
+.explain .bit-s{font-size:30px}
+.explain code,.card li code,.card p code,.opt code,.real code,.hint code,.fb code,h2 code{background:#ffffff1a;padding:1px 6px;border-radius:6px;font-size:.92em}
+.tip{margin-top:12px;background:#ff5d731a;border-left:5px solid var(--bad);padding:10px 14px;border-radius:10px;line-height:1.5}
+details{margin-top:14px;background:#ffffff0a;border-radius:14px;padding:10px 14px}
+summary{cursor:pointer;font-weight:700;color:var(--cyan)}
+textarea{width:100%;background:#0a0d22;color:var(--ink);border:1px solid #ffffff22;border-radius:12px;padding:12px;font-size:15px;resize:vertical}
+textarea.editor{min-height:150px;line-height:1.5;tab-size:2}
+textarea:focus{outline:2px solid var(--w)}
+pre.out{background:#04060f;border-radius:12px;padding:10px 14px;min-height:20px;color:#9bffcf;font-size:14px;white-space:pre-wrap;margin:8px 0 0}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.tag{font-size:12px;font-weight:800;padding:4px 10px;border-radius:99px;background:#ffffff14;letter-spacing:.4px}
+.tag.boss{background:linear-gradient(90deg,#ff5d73,#ff9a3d);color:#2b0610}
+.tag.bug{background:#ff9a3d;color:#2b1700}
+.tag.pts{color:var(--acc)}
+.opts{display:grid;gap:10px;margin-top:14px}
+.opt{background:var(--panel2);padding:14px 16px;border-radius:14px;text-align:left;font-size:16px;border:2px solid transparent;font-family:ui-monospace,Menlo,Consolas,monospace}
+.opt:hover:not(:disabled){border-color:var(--w);transform:translateX(4px)}
+.opt:disabled{opacity:.55}
+.opt.bad{background:#ff5d7333;border-color:var(--bad)}
+.opt.good{background:#3ddc9733;border-color:var(--good);opacity:1}
+.shake{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.fb{margin-top:16px;padding:16px;border-radius:14px;line-height:1.6;animation:pop .35s}
+@keyframes pop{from{transform:scale(.94);opacity:0}}
+.fb.good{background:#3ddc9722;border:2px solid var(--good)}
+.fb.bad{background:#ff5d7322;border:2px solid var(--bad)}
+.fb.info{background:#35d0ff1c;border:2px solid var(--cyan)}
+.fb h3{margin:0 0 6px}
+.bigpts{font-size:30px;font-weight:900;color:var(--acc)}
+.hint{margin-top:12px;background:#ffd23f1c;border:2px dashed var(--acc);padding:12px;border-radius:12px;line-height:1.5}
+.tests{margin-top:12px;display:grid;gap:6px}
+.t{padding:8px 12px;border-radius:10px;font-size:14px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.t.p{background:#3ddc9720}.t.f{background:#ff5d7326}
+.result{text-align:center}
+.bigstars{font-size:64px;color:var(--acc);letter-spacing:8px;animation:pop .6s}
+.stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.stat{background:#ffffff10;padding:12px 18px;border-radius:14px}
+.stat b{display:block;font-size:24px;color:var(--acc)}
+.learned{text-align:left;background:#ffffff0a;border-radius:14px;padding:12px 18px;margin-top:10px}
+.learned li{margin:6px 0;line-height:1.5}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:90}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:100;display:grid;gap:8px}
+.toast{background:linear-gradient(135deg,#ffd23f,#ff9a3d);color:#2b1700;padding:12px 20px;border-radius:14px;font-weight:800;box-shadow:0 10px 30px #0008;animation:drop .4s}
+@keyframes drop{from{transform:translateY(-30px);opacity:0}}
+#modal{position:fixed;inset:0;background:#000a;z-index:95;display:none;align-items:center;justify-content:center;padding:16px}
+#modal.on{display:flex}
+#modal .box{background:var(--panel);border-radius:20px;padding:22px;max-width:560px;width:100%;max-height:85vh;overflow:auto}
+.badge{display:flex;gap:12px;align-items:center;padding:10px;border-radius:12px;background:#ffffff0c;margin:8px 0}
+.badge .e{font-size:30px}
+.badge.lock{opacity:.4;filter:grayscale(1)}
+.badge small{color:var(--mute)}
+.combo{display:inline-block;background:linear-gradient(90deg,#ff5d73,#ff9a3d);color:#2b0610;font-weight:900;padding:3px 10px;border-radius:99px;margin-left:8px;font-size:14px}
+@media(max-width:560px){.hero{flex-direction:column;text-align:center}.cl{font-size:13px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" onclick="G.home()">🎮 Code Quest</div>
+  <div class="xp"><div class="lab"><span id="rank">Rookie</span><span id="xpn"></span></div><div class="bar"><i id="xpbar"></i></div></div>
+  <div class="chips">
+    <span class="chip" title="Correct-answer streak">🔥 <span id="streak">0</span></span>
+    <span class="chip" title="Total score">🏆 <span id="score">0</span></span>
+    <span class="chip" title="Stars">⭐ <span id="stars">0</span></span>
+    <button class="chip btn" onclick="G.badges()" title="Badges">🏅</button>
+    <button class="chip btn" id="snd" onclick="G.sound()" title="Sound">🔊</button>
+  </div>
+</header>
+<main id="app"></main>
+<canvas id="fx"></canvas>
+<div id="toast"></div>
+<div id="modal" onclick="if(event.target===this)G.closeModal()"><div class="box" id="mbox"></div></div>
+
+<script>
+/* =========================================================
+   CODE QUEST — learn JavaScript by playing
+   Sections: 1) helpers  2) sandbox runner  3) game data
+             4) game engine  5) screens
+   ========================================================= */
+
+/* ---------- 1) helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const L = (...a) => a.join('\n');
+const pick = a => a[Math.floor(Math.random()*a.length)];
+
+// tiny syntax highlighter (keywords / strings / numbers / comments)
+function hl(code){
+  const re = /(\/\/.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)|\b(let|const|function|return|if|else|for|while|of|true|false|new|typeof)\b|\b(\d+(?:\.\d+)?)\b/g;
+  let out = '', last = 0, m;
+  while ((m = re.exec(code))) {
+    out += esc(code.slice(last, m.index));
+    const cls = m[1] ? 'c' : m[2] ? 's' : m[3] ? 'k' : 'n';
+    out += '<span class="'+cls+'">'+esc(m[0])+'</span>';
+    last = m.index + m[0].length;
+  }
+  return out + esc(code.slice(last));
+}
+
+/* ---------- 2) sandbox: run the player's code safely ---------- */
+// execute() is stringified into a Web Worker, so it must be self-contained.
+function execute(code, exprs){
+  var logs = [];
+  function insp(v, top){
+    if (typeof v === 'string') return top ? v : "'" + v + "'";
+    if (Array.isArray(v)) return v.length ? '[ ' + v.map(function(x){return insp(x)}).join(', ') + ' ]' : '[]';
+    if (v && typeof v === 'object'){ var k = Object.keys(v); return k.length ? '{ ' + k.map(function(x){return x + ': ' + insp(v[x])}).join(', ') + ' }' : '{}'; }
+    return String(v);
+  }
+  function sortK(v){
+    if (Array.isArray(v)) return v.map(sortK);
+    if (v && typeof v === 'object'){ var o = {}; Object.keys(v).sort().forEach(function(k){ o[k] = sortK(v[k]); }); return o; }
+    return v;
+  }
+  function ser(v){ if (v === undefined) return 'undefined'; if (typeof v === 'number' && isNaN(v)) return 'NaN'; return JSON.stringify(sortK(v)); }
+  var fake = { log: function(){ logs.push([].map.call(arguments, function(a){ return insp(a, true); }).join(' ')); } };
+  var res = [], error = null;
+  try {
+    var body = code + '\n;return [' + exprs.map(function(x){ return '(function(){try{return {v:(' + x + ')}}catch(e){return {e:String(e)}}})()'; }).join(',') + '];';
+    var out = new Function('console', body)(fake);
+    res = out.map(function(o){ return o.e ? { err: o.e } : { got: ser(o.v) }; });
+  } catch (e) { error = String(e); }
+  return { logs: logs, res: res, error: error };
+}
+const WORKER_SRC = 'var execute=' + execute.toString() + ';self.onmessage=function(e){postMessage(execute(e.data.code,e.data.exprs))};';
+function runCode(code, exprs = []){
+  return new Promise(resolve => {
+    let w;
+    try { w = new Worker(URL.createObjectURL(new Blob([WORKER_SRC], {type:'text/javascript'}))); }
+    catch (e) { return resolve(execute(code, exprs)); }          // fallback: run inline
+    const t = setTimeout(() => { w.terminate(); resolve({logs:[], res:[], error:'⏱️ Your code ran for too long. Is there a loop that never stops?'}); }, 2000);
+    w.onmessage = e => { clearTimeout(t); w.terminate(); resolve(e.data); };
+    w.onerror = () => { clearTimeout(t); w.terminate(); resolve(execute(code, exprs)); };
+    w.postMessage({ code, exprs });
+  });
+}
+const sortK = v => Array.isArray(v) ? v.map(sortK) : (v && typeof v === 'object') ? Object.keys(v).sort().reduce((o,k)=>(o[k]=sortK(v[k]),o),{}) : v;
+const ser = v => v === undefined ? 'undefined' : JSON.stringify(sortK(v));
+const norm = s => String(s).toLowerCase().replace(/[\s,'"]/g, '');
+
+/* ---------- 3) game data: 7 worlds ---------- */
+const WORLDS = [
+/* ======================= WORLD 1 ======================= */
+{ id:'vars', name:'Variable Village', emoji:'📦', c:'#35d0ff',
+  tag:'Store things in labeled boxes',
+  story:"Welcome to Variable Village, where every villager keeps their belongings in labeled boxes. Learn to make, fill and change them!",
+  learned:['A <b>variable</b> is a labeled box: <code>let name = value;</code>','<code>=</code> means &ldquo;put inside&rdquo;, not &ldquo;equals&rdquo;','Types: number, string (text in quotes), boolean (true/false)','<code>const</code> = a box you can never swap; <code>let</code> = a box you can change','Template strings glue values into text: <code>`Hi ${name}`</code>'],
+  lessons:[
+   { t:'Variables are labeled boxes 📦',
+     real:"Your phone&rsquo;s contacts! Each contact has a <b>name</b> (the label) and a <b>number</b> (what is inside). You never memorize the digits &mdash; you just say &ldquo;Call Mom&rdquo;. A variable works the same way: a name that points to a value, so you can use it again and again.",
+     text:"A <b>variable</b> is a named box in your computer&rsquo;s memory. You choose the name, put a value inside, and can read or change it later. Click each line to see what it does.",
+     code:[
+      ['let playerName = "Sam";','<b>let</b> is the magic word that means &ldquo;create a new box&rdquo;. <b>playerName</b> is the label you stick on it (no spaces allowed!). The single <b>=</b> means &ldquo;put this inside&rdquo; &mdash; it is <i>not</i> the maths &ldquo;equals&rdquo;. <b>&quot;Sam&quot;</b> is the value; the quote marks tell JavaScript it is text.'],
+      ['let score = 0;','Another box, labeled <b>score</b>, holding the number <b>0</b>. Numbers have no quotes. The semicolon <b>;</b> is a full stop: it ends the instruction.'],
+      ['score = score + 10;','No <b>let</b> this time &mdash; the box already exists, so we only change what is inside. The computer solves the <i>right side first</i>: read score (0), add 10, get 10. Then it puts 10 back into score. Like a game wallet: same wallet, more coins.'],
+      ['console.log(playerName + " has " + score + " points");','<b>console.log(...)</b> is how the computer talks to you &mdash; it prints on screen. The <b>+</b> between text pieces glues them together (programmers call this <i>concatenation</i>). It prints: <code>Sam has 10 points</code>.']],
+     tip:"<b>Common mistake:</b> using <code>let</code> twice for the same name. <code>let score</code> creates the box — after that, just write <code>score = ...</code>. Also name boxes clearly: <code>score</code> beats <code>x</code>, and <code>playerName</code> (camelCase) beats <code>player name</code>." },
+   { t:'Types: what kind of thing is inside? 🧪',
+     real:"A kitchen has different containers: a jar for sugar, a bottle for water, a switch for the light. Not everything fits everywhere! Values have <b>types</b> too: <b>numbers</b>, <b>strings</b> (text) and <b>booleans</b> (only yes/no).",
+     text:"JavaScript treats a number, a piece of text, and a true/false value differently. There is also <b>const</b>: a box you promise never to swap.",
+     code:[
+      ['const birthYear = 2000;','<b>const</b> is like writing the label in permanent marker: this box can never be given a new value. Perfect for things that never change, like a birth year.'],
+      ['let price = 4.5;','Numbers can have decimals. Still a number &mdash; no quotes.'],
+      ['let item = "coffee";','Anything inside quotes is a <b>string</b> (text): names, sentences, emojis, even <code>"123"</code>.'],
+      ['let isOpen = true;','A <b>boolean</b> has only two possible values: <b>true</b> or <b>false</b> (no quotes!). Think of a light switch: on or off. Great for questions like &ldquo;is the shop open?&rdquo;.'],
+      ['console.log(typeof item);','<b>typeof</b> asks &ldquo;what type is this?&rdquo;. It prints <code>string</code>. Handy detective tool when something behaves strangely.']],
+     tip:"<b>Sneaky one:</b> <code>5</code> (number) and <code>&quot;5&quot;</code> (text) look alike but behave very differently. You will see why in the Math Market!" },
+   { t:'Template strings: fill-in-the-blank text ✍️',
+     real:"Remember <b>Mad Libs</b>? A sentence with blanks you fill in. Template strings are exactly that: a sentence with <b>pockets</b> where variables get dropped in.",
+     text:"Gluing text with <code>+</code> gets messy. Backticks and <code>${ }</code> are cleaner.",
+     code:[
+      ['let name = "Ada";','A text box labeled <b>name</b>.'],
+      ['let level = 3;','A number box labeled <b>level</b>.'],
+      ['let msg = `${name} reached level ${level}!`;','Backticks <b>` `</b> (the key above Tab) start a template string. Anything inside <b>${ }</b> is a pocket: JavaScript runs what is inside and drops the result into the sentence. Pocket 1 becomes Ada, pocket 2 becomes 3.'],
+      ['console.log(msg);','Prints <code>Ada reached level 3!</code>. Change <b>level</b> to 4 and the message updates itself &mdash; that is the power of variables!']],
+     tip:"<b>Common mistake:</b> using normal quotes <code>&quot; &quot;</code> instead of backticks. <code>${ }</code> only works inside backticks." }
+  ],
+  ch:[
+   { type:'quiz', q:"Which line creates a box called <code>lives</code> and puts the number 3 inside?",
+     o:['let lives = 3;','make lives to 3','3 = lives;','lives := 3'], a:0,
+     hint:"Remember the magic word that creates a new box.",
+     why:"<code>let</code> creates the box, <code>lives</code> is the label, <code>=</code> means &ldquo;put inside&rdquo;, and <code>3</code> is the value. The other options come from other languages or are just nonsense &mdash; JavaScript only understands <code>let</code> (or <code>const</code>) for new boxes." },
+   { type:'output', q:"What does this code print?", code:L('let coins = 5;','coins = coins + 2;','console.log(coins);'), answer:'7',
+     hint:"Solve the right side of the = first, then store it back.",
+     why:"The box starts with 5. In line 2 the computer reads the box (5), adds 2 → 7, and puts 7 back. Real life: you have 5 coins in your pocket and a friend gives you 2 more. Still one pocket, now with 7 coins." },
+   { type:'quiz', q:"Which of these is a <b>string</b> (text)?", o:['42','"42"','true','4.2'], a:1,
+     hint:"Look for the quote marks.",
+     why:"Quotes turn anything into text, even digits. <code>42</code> is a number, <code>true</code> is a boolean, <code>4.2</code> is a decimal number. <code>&quot;42&quot;</code> is text that happens to contain digits &mdash; like a house number written on a door: you read it, you don&rsquo;t do maths with it." },
+   { type:'code', q:"You have <code>gold</code> = 50. Add 25 more gold <b>to the same variable</b>.",
+     starter:L('let gold = 50;','// add 25 to gold on the next line'),
+     tests:[['gold',75]], solution:L('let gold = 50;','gold = gold + 25;'), pts:25,
+     hint:"No <code>let</code> this time &mdash; the box exists already. Read gold, add 25, store it back into gold.",
+     why:"<code>gold = gold + 25;</code> reads the current value (50), adds 25, and stores 75 back in the same box. If you wrote <code>let gold</code> again, JavaScript would complain: you can&rsquo;t build a second box with the same label!" },
+   { type:'code', boss:true, q:"👹 <b>BOSS:</b> Variables <code>name</code> and <code>level</code> exist. Make a variable <code>message</code> that equals exactly <code>Ada reached level 3!</code> using a <b>template string</b> (backticks and <code>${ }</code>).",
+     starter:L('let name = "Ada";','let level = 3;','// your line: let message = ...'),
+     tests:[['message','Ada reached level 3!']],
+     solution:L('let name = "Ada";','let level = 3;','let message = `${name} reached level ${level}!`;'), pts:30,
+     hint:"Start with a backtick, put <code>${name}</code>, type the words, then <code>${level}</code> and the <code>!</code>. End with a backtick.",
+     why:"The template string is a sentence with two pockets. JavaScript opens each <code>${ }</code>, looks up the variable, and drops its value into the text. If level changed to 7 the message would update automatically &mdash; you wrote the sentence once and it works for every player." }
+  ]},
+
+/* ======================= WORLD 2 ======================= */
+{ id:'math', name:'Math Market', emoji:'🛒', c:'#ffd23f',
+  tag:'Numbers, operators & text vs maths',
+  story:"The market is busy! Merchants need quick maths: totals, change, sharing the bill. Time to turn your computer into the world&rsquo;s fastest calculator.",
+  learned:['Operators: <code>+ - * /</code> and <b>%</b> (remainder)','<code>*</code> and <code>/</code> happen before <code>+</code> and <code>-</code>; use <code>( )</code> to change the order','<code>Math.floor()</code> chops off decimals (rounds down)','<code>+</code> on text glues; on numbers it adds: <code>"5"+2</code> is <code>"52"</code>'],
+  lessons:[
+   { t:'Your computer is a calculator 🧮',
+     real:"At a market stall the vendor multiplies price × quantity to make your receipt. The computer does the same, just 1000× faster &mdash; and it never makes mistakes carrying the 1.",
+     text:"Maths symbols in code: <code>+</code> add, <code>-</code> subtract, <code>*</code> multiply, <code>/</code> divide.",
+     code:[
+      ['let price = 4;','Price of one apple.'],
+      ['let quantity = 3;','You are buying three.'],
+      ['let total = price * quantity;','<b>*</b> means multiply (we do not use ×). The computer reads price (4) and quantity (3), calculates 12, and stores it in <b>total</b>.'],
+      ['let half = total / 2;','<b>/</b> means divide. 12 ÷ 2 = 6.'],
+      ['console.log(total, half);','You can print several values at once, separated by commas. Prints <code>12 6</code>.']],
+     tip:"<b>Order of operations:</b> just like school, <code>*</code> and <code>/</code> go first. <code>2 + 3 * 4</code> is 14, not 20. Use brackets to force the order: <code>(2 + 3) * 4</code> is 20." },
+   { t:'Remainder: the leftovers % 🍪',
+     real:"You have 17 cookies and 5 friends. Everyone gets 3 cookies, and <b>2 are left over</b>. The <b>%</b> operator gives you that leftover!",
+     text:"<code>%</code> is called the <b>remainder</b> (or modulo) operator. It tells you what is left after dividing as many whole times as possible.",
+     code:[
+      ['let cookies = 17;','Total cookies.'],
+      ['let friends = 5;','Number of friends.'],
+      ['let each = Math.floor(cookies / friends);','17 ÷ 5 = 3.4, but you cannot hand out 0.4 of a cookie. <b>Math.floor()</b> chops the decimal off (rounds down) → 3.'],
+      ['let leftover = cookies % friends;','<b>%</b> gives the remainder: 5 fits into 17 three times (15), and 17 − 15 = <b>2</b> are left.'],
+      ['console.log(each, leftover);','Prints <code>3 2</code>.']],
+     tip:"<b>Superpower:</b> <code>n % 2</code> is 0 for even numbers and 1 for odd numbers. Programmers use it all the time (e.g. making every second row of a table a different color)." },
+   { t:'Plus with numbers vs. plus with text ⚠️',
+     real:"Typing 5 + 2 on a calculator gives 7. But writing the <i>word</i> &ldquo;5&rdquo; next to the <i>word</i> &ldquo;2&rdquo; on paper gives &ldquo;52&rdquo;. The same <code>+</code> symbol does different jobs depending on what it is given!",
+     text:"If <b>either</b> side of a <code>+</code> is text, JavaScript glues instead of adding.",
+     code:[
+      ['console.log(5 + 2);','Both numbers → real addition → <code>7</code>.'],
+      ['console.log("5" + 2);','One side is text → glue → <code>52</code> (it is text, not the number 52!).'],
+      ['console.log("5" * 2);','There is no &ldquo;gluing&rdquo; for <b>*</b>, so JavaScript converts &ldquo;5&rdquo; to a number and multiplies → <code>10</code>. Confusing? Yes! That is why knowing your <b>types</b> matters.']],
+     tip:"When a result looks weird, ask: <i>&ldquo;Is this a number or text?&rdquo;</i> &mdash; <code>typeof</code> is your friend." }
+  ],
+  ch:[
+   { type:'output', q:"What does this code print?", code:'console.log(2 + 3 * 4);', answer:'14',
+     hint:"Multiplication goes before addition.",
+     why:"3 × 4 = 12 happens first, then 2 + 12 = 14. Market version: 3 packs of 4 apples (12 apples) plus 2 loose ones = 14 apples. Use <code>(2 + 3) * 4</code> to get 20." },
+   { type:'quiz', q:"What does <code>17 % 5</code> give?", o:['3','2','3.4','12'], a:1,
+     hint:"% is not &ldquo;percent&rdquo; &mdash; it is the leftover.",
+     why:"5 fits into 17 three times (3 × 5 = 15). 17 − 15 leaves <b>2</b>. The <code>%</code> operator only cares about the leftover, just like the cookies that nobody could share evenly." },
+   { type:'output', q:"What does this code print?", code:'console.log("5" + 2);', answer:'52',
+     hint:"One side is text...",
+     why:"Because <code>&quot;5&quot;</code> is text, the <code>+</code> glues instead of adds: &ldquo;5&rdquo; and &ldquo;2&rdquo; become &ldquo;52&rdquo;. Like writing the digit 5 and the digit 2 side by side on a sticky note." },
+   { type:'code', q:"Four friends split a <code>bill</code> of 90 equally. Create a variable <code>share</code> with what each person pays.",
+     starter:L('const bill = 90;','const friends = 4;','// create: let share = ...'),
+     tests:[['share',22.5]], solution:L('const bill = 90;','const friends = 4;','let share = bill / friends;'), pts:25,
+     hint:"Divide the bill by the number of friends.",
+     why:"<code>bill / friends</code> = 90 ÷ 4 = 22.5. Notice we used the <i>variables</i> instead of typing 90 and 4 &mdash; if the bill changes, the code still works." },
+   { type:'code', boss:true, q:"👹 <b>BOSS:</b> 17 pizza slices are shared among 5 people. Make <code>slicesEach</code> (whole slices per person) and <code>leftover</code> (slices nobody gets).",
+     starter:L('const slices = 17;','const people = 5;','// make slicesEach and leftover'),
+     tests:[['slicesEach',3],['leftover',2]],
+     solution:L('const slices = 17;','const people = 5;','let slicesEach = Math.floor(slices / people);','let leftover = slices % people;'), pts:30,
+     hint:"Two tools from this world: <code>Math.floor(a / b)</code> for whole shares and <code>a % b</code> for leftovers.",
+     why:"<code>slices / people</code> is 3.4, and nobody can eat 0.4 of a slice, so <code>Math.floor</code> rounds down to 3. <code>slices % people</code> is the remainder: 17 − 15 = 2 slices left in the box. Division + remainder always describe sharing completely: <b>3 × 5 + 2 = 17</b>." }
+  ]},
+
+/* ======================= WORLD 3 ======================= */
+{ id:'func', name:'Function Factory', emoji:'🏭', c:'#3ddc97',
+  tag:'Build reusable machines',
+  story:"Welcome to the Function Factory! Instead of doing the same job again and again, you build a <b>machine</b> once and press its button whenever you like.",
+  learned:['A <b>function</b> is a reusable machine: <code>function name(input) { ... }</code>','<b>Parameters</b> are the inputs; <b>arguments</b> are the values you pass in','<code>return</code> hands a value back; <code>console.log</code> only shows it','Write once, reuse everywhere (no copy-paste!)'],
+  lessons:[
+   { t:'A function is a machine ⚙️',
+     real:"A <b>vending machine</b>: you put in coins and press a button (inputs), the machine does its work inside (the body), and a snack drops out (the return value). You do not need to know how the machine works to use it!",
+     text:"A function packages instructions under a name. <b>Defining</b> a function builds the machine; <b>calling</b> it runs the machine.",
+     code:[
+      ['function double(number) {','<b>function</b> says &ldquo;I am building a machine&rdquo;. <b>double</b> is its name. Inside the brackets is the <b>parameter</b> <code>number</code> &mdash; an empty slot waiting for an input. The <b>{</b> opens the machine&rsquo;s body.'],
+      ['  return number * 2;','<b>return</b> sends a value <i>out</i> of the machine and stops it. Here we take whatever came in and multiply it by 2. (Indentation is just to make it readable.)'],
+      ['}','Closes the body. Nothing has run yet &mdash; we just built the machine!'],
+      ['let result = double(4);','This is the <b>call</b>: we press the button with input <b>4</b>. The 4 drops into <code>number</code>, the body runs, 4 * 2 = 8 is returned, and 8 lands in <b>result</b>.'],
+      ['console.log(result);','Prints <code>8</code>.']],
+     tip:"<b>Common mistake:</b> defining the function and forgetting to call it. Building a vending machine does not give you a snack &mdash; you have to press the button: <code>double(4)</code>." },
+   { t:'return vs console.log 🎁',
+     real:"A vending machine has a <b>screen</b> (&ldquo;Enjoy your snack!&rdquo;) and a <b>tray</b> where the snack falls. <code>console.log</code> is the screen: a message for the human. <code>return</code> is the tray: the actual thing you can use afterwards.",
+     text:"This is the #1 thing beginners mix up. Read the code and predict the output!",
+     code:[
+      ['function addTax(price) {','A machine with one input.'],
+      ['  return price + 2;','Gives the answer back to whoever called it.'],
+      ['}','End of addTax.'],
+      ['function shout(word) {','A machine that only <i>displays</i> something...'],
+      ['  console.log(word + "!");','...it prints to the screen but never uses <b>return</b>.'],
+      ['}','End of shout.'],
+      ['let a = addTax(10);','10 + 2 = 12 comes back through <b>return</b> and is stored in <b>a</b>.'],
+      ['let b = shout("hey");','Prints <code>hey!</code> on screen. But nothing was returned, so <b>b</b> becomes <code>undefined</code> (JavaScript&rsquo;s word for &ldquo;nothing here&rdquo;).'],
+      ['console.log(a, b);','Prints <code>12 undefined</code>.']],
+     tip:"<b>Rule of thumb:</b> if you want to <i>use</i> the answer later (store it, add to it, compare it), <code>return</code> it. Use <code>console.log</code> only to peek at values while you work." },
+   { t:'Many inputs, endless reuse ♻️',
+     real:"A cooking recipe: &ldquo;pizza for N people&rdquo;. Write the recipe once and use it for 2 friends or 200 guests. Functions stop you from copy-pasting the same code over and over.",
+     text:"Functions can take <b>several</b> parameters, separated by commas. The values you pass in are called <b>arguments</b>; they fill the parameters <i>in order</i>.",
+     code:[
+      ['function area(width, height) {','Two slots: <b>width</b> and <b>height</b>.'],
+      ['  return width * height;','Multiply the two inputs and send the result out.'],
+      ['}','End of the machine.'],
+      ['console.log(area(3, 4));','First argument 3 → width, second 4 → height. 3 × 4 = <code>12</code>.'],
+      ['console.log(area(10, 2));','Same machine, new inputs: <code>20</code>. No copy-paste needed!']],
+     tip:"<b>Order matters:</b> <code>area(3, 4)</code> puts 3 in the first slot and 4 in the second. With subtraction, <code>sub(10, 3)</code> and <code>sub(3, 10)</code> give different answers!" }
+  ],
+  ch:[
+   { type:'quiz', q:"What does <code>double(4)</code> give back?", code:L('function double(n) {','  return n * 2;','}'), o:['4','8','n * 2','undefined'], a:1,
+     hint:"The 4 goes into <code>n</code>, then <code>n * 2</code> is calculated.",
+     why:"Calling <code>double(4)</code> drops 4 into the parameter <code>n</code>. The body computes 4 * 2 = 8 and <code>return</code> sends 8 back to the caller." },
+   { type:'quiz', q:"What is the difference between <code>return</code> and <code>console.log</code>?",
+     o:['return sends a value back to the code that called the function; console.log only shows it on screen','They are exactly the same','console.log stops the function; return prints','return only works with numbers'], a:0,
+     hint:"Think vending machine: the screen vs. the tray.",
+     why:"<code>return</code> is the snack in the tray &mdash; you can pick it up and use it (store it, add it, compare it). <code>console.log</code> is the display screen &mdash; only a message for the human." },
+   { type:'output', q:"What does this code print?", code:L('function add(a, b) {','  return a + b;','}','console.log(add(2, 3) * 2);'), answer:'10',
+     hint:"Work from the inside out: add(2, 3) first.",
+     why:"<code>add(2, 3)</code> returns 5. Because it <i>returned</i> a value, we can keep using it: 5 * 2 = 10. This chaining is only possible because of <code>return</code>." },
+   { type:'code', q:"Finish the function <code>double(n)</code> so it <b>returns</b> twice the number.",
+     starter:L('function double(n) {','  // your code','}'),
+     tests:[['double(4)',8],['double(0)',0],['double(-3)',-6]], solution:L('function double(n) {','  return n * 2;','}'), pts:25,
+     hint:"Use <code>return</code> and multiply <code>n</code> by 2.",
+     why:"Our tests call the function with 3 different inputs, and the same one-line body handles all of them &mdash; that is what makes functions powerful. Even 0 and negative numbers just work." },
+   { type:'code', bug:true, q:"🐛 <b>Bug hunt:</b> <code>greet(name)</code> should <b>return</b> <code>Hello Ada</code> for <code>&quot;Ada&quot;</code>, but it only prints it. Fix it!",
+     starter:L('function greet(name) {','  console.log("Hello " + name);','}'),
+     tests:[['greet("Ada")','Hello Ada'],['greet("Bo")','Hello Bo']], solution:L('function greet(name) {','  return "Hello " + name;','}'), pts:30,
+     hint:"Replace <code>console.log(...)</code> with <code>return ...</code>.",
+     why:"The broken version showed the greeting on screen but handed back <code>undefined</code>, so tests (and any other code) got nothing to work with. A bug fixed by swapping <code>console.log</code> for <code>return</code> is one of the most common beginner bugs." },
+   { type:'code', boss:true, q:"👹 <b>BOSS:</b> Write <code>average(a, b, c)</code> that returns the average of three exam scores.",
+     starter:L('function average(a, b, c) {','  // your code','}'),
+     tests:[['average(3,6,9)',6],['average(1,2,3)',2],['average(10,10,10)',10],['average(0,0,6)',2]],
+     solution:L('function average(a, b, c) {','  return (a + b + c) / 3;','}'), pts:30,
+     hint:"Add all three, then divide by 3. Careful with the brackets!",
+     why:"<code>(a + b + c) / 3</code> needs the brackets: without them, <code>/</code> would run first and only divide <code>c</code> by 3 (order of operations from the Math Market!). Real life: a teacher adds your three exam scores and divides by the number of exams." }
+  ]},
+
+/* ======================= WORLD 4 ======================= */
+{ id:'if', name:'Decision Dungeon', emoji:'🚪', c:'#ff9a3d',
+  tag:'If, else, and, or: make choices',
+  story:"The dungeon doors only open for those who can decide! Teach your code to ask questions and choose a path.",
+  learned:['Comparisons give <b>true/false</b>: <code>&gt; &lt; &gt;= &lt;= === !==</code>','<code>=</code> stores, <code>===</code> compares','<code>if / else if / else</code> checks top to bottom &mdash; <b>first true wins</b>','<code>&amp;&amp;</code> = AND, <code>||</code> = OR, <code>!</code> = NOT'],
+  lessons:[
+   { t:'Questions with yes/no answers ❓',
+     real:"A <b>bouncer at a club</b> asks: &ldquo;Are you 18 or older?&rdquo; The answer is always yes or no. Comparisons in code are the same &mdash; they produce <b>true</b> or <b>false</b>.",
+     text:"Comparison operators ask a question about two values and answer with a boolean.",
+     code:[
+      ['let age = 16;','Our visitor is 16.'],
+      ['console.log(age >= 18);','Is 16 greater than or equal to 18? No → <code>false</code>. (Others: <b>&gt;</b> greater, <b>&lt;</b> less, <b>&lt;=</b> less or equal.)'],
+      ['console.log(age === 16);','<b>===</b> asks &ldquo;is it exactly equal?&rdquo;. Yes → <code>true</code>. Three equals signs, because one <b>=</b> already means &ldquo;store&rdquo;!'],
+      ['console.log(age !== 16);','<b>!==</b> means &ldquo;not equal&rdquo;. It is 16, so → <code>false</code>.'],
+      ['console.log(5 === "5");','Number 5 vs. text &quot;5&quot;: different types, so → <code>false</code>. <b>===</b> checks type <i>and</i> value.']],
+     tip:"<b>Classic bug:</b> writing <code>if (age = 18)</code> (one =) <i>stores</i> 18 instead of asking a question. Always use <code>===</code> to compare." },
+   { t:'if / else if / else 🚦',
+     real:"Deciding what to wear: <i>if</i> it is hot → shorts, <i>else if</i> it is mild → jacket, <i>else</i> → coat. You check the conditions in order and stop at the first one that is true.",
+     text:"<code>if</code> runs a block of code only when its condition is true.",
+     code:[
+      ['let temperature = 12;','Today it is 12 degrees.'],
+      ['if (temperature > 25) {','Question 1: is it hotter than 25? 12 &gt; 25 is false → skip the block.'],
+      ['  console.log("Wear shorts");','Only runs if question 1 was true.'],
+      ['} else if (temperature > 10) {','Question 2: hotter than 10? <b>Yes</b> → run this block, then skip everything else.'],
+      ['  console.log("Wear a jacket");','This is the one that prints!'],
+      ['} else {','<b>else</b> = &ldquo;none of the above&rdquo; (the safety net).'],
+      ['  console.log("Wear a coat");','Only when everything above was false.'],
+      ['}','End of the decision chain.']],
+     tip:"<b>Order matters!</b> JavaScript stops at the <i>first</i> true condition. If you ask <code>temperature &gt; 10</code> before <code>temperature &gt; 25</code>, a 30° day would say &ldquo;jacket&rdquo;." },
+   { t:'AND, OR, NOT: combining questions 🎢',
+     real:"A roller coaster: you must be <b>tall enough AND old enough</b> (both). A free-entry day: <b>kids OR seniors</b> (either one is enough). <b>NOT</b> flips an answer.",
+     text:"<code>&amp;&amp;</code> (AND), <code>||</code> (OR) and <code>!</code> (NOT) combine or flip booleans.",
+     code:[
+      ['let age = 10;','Visitor is 10.'],
+      ['let height = 130;','Visitor is 130 cm tall.'],
+      ['let tall = height >= 120;','A comparison produces a boolean we can store: <code>true</code>.'],
+      ['let canRide = tall && age >= 8;','<b>&amp;&amp;</b> (AND) is true only if <i>both</i> sides are true: tall is true AND 10 &gt;= 8 is true → <code>true</code>.'],
+      ['let freeEntry = age < 5 || age > 65;','<b>||</b> (OR) is true if <i>at least one</i> side is true. 10 &lt; 5 is false, 10 &gt; 65 is false → <code>false</code>.'],
+      ['console.log(canRide, freeEntry, !tall);','<b>!</b> flips: not true = false. Prints <code>true false false</code>.']],
+     tip:"<b>Memory trick:</b> AND is strict (everyone must agree), OR is relaxed (one yes is enough)." }
+  ],
+  ch:[
+   { type:'quiz', q:"What does <code>5 === &quot;5&quot;</code> give?", o:['true','false','5','an error'], a:1,
+     hint:"One is a number, the other is text.",
+     why:"<code>===</code> compares the value <i>and</i> the type. A number 5 and a text &quot;5&quot; are different types, so the answer is <code>false</code>. Like asking a bouncer: a ticket labeled &ldquo;5&rdquo; is not the same as the number 5 on a screen." },
+   { type:'output', q:"What does this code print?", code:L('let age = 15;','if (age >= 18) {','  console.log("adult");','} else {','  console.log("minor");','}'), answer:'minor',
+     hint:"Is 15 &gt;= 18?",
+     why:"15 &gt;= 18 is false, so the <code>if</code> block is skipped and the <code>else</code> block runs. Just like the bouncer sending you home." },
+   { type:'quiz', q:"Which symbol means <b>AND</b> (both sides must be true)?", o:['||','&&','!','=='], a:1,
+     hint:"Two of the same symbol, and it looks like a ribbon.",
+     why:"<code>&amp;&amp;</code> is AND. <code>||</code> is OR, <code>!</code> is NOT, and <code>==</code> is a loose comparison (avoid it; use <code>===</code>)." },
+   { type:'code', q:"Write <code>isEven(n)</code> that returns <code>true</code> when n is even and <code>false</code> when odd.",
+     starter:L('function isEven(n) {','  // hint: the % operator helps','}'),
+     tests:[['isEven(4)',true],['isEven(7)',false],['isEven(0)',true],['isEven(13)',false]], solution:L('function isEven(n) {','  return n % 2 === 0;','}'), pts:25,
+     hint:"Even numbers leave remainder 0 when divided by 2. A comparison already gives true/false &mdash; you can return it directly.",
+     why:"<code>n % 2</code> is the leftover after dividing by 2: 0 for even, 1 for odd. <code>=== 0</code> turns that into true/false, and <code>return</code> sends it out. No <code>if</code> needed &mdash; comparisons <i>are</i> answers." },
+   { type:'code', bug:true, q:"🐛 <b>Bug hunt:</b> <code>grade(score)</code> should give A for 90+, B for 80+, C for 70+, else F. But 95 returns &ldquo;C&rdquo;. Fix the bug!",
+     starter:L('function grade(score) {','  if (score >= 70) return "C";','  else if (score >= 80) return "B";','  else if (score >= 90) return "A";','  return "F";','}'),
+     tests:[['grade(95)','A'],['grade(90)','A'],['grade(85)','B'],['grade(80)','B'],['grade(72)','C'],['grade(10)','F']],
+     solution:L('function grade(score) {','  if (score >= 90) return "A";','  else if (score >= 80) return "B";','  else if (score >= 70) return "C";','  return "F";','}'), pts:30,
+     hint:"The first <i>true</i> condition wins. Which condition should be asked first?",
+     why:"95 is &gt;= 70, so the very first check was true and the function returned &ldquo;C&rdquo; immediately. Always check the <b>strictest</b> condition first (90+), then loosen. Real life: a security guard checks for VIP wristbands <i>before</i> general tickets." },
+   { type:'code', boss:true, q:"👹 <b>BOSS:</b> Roller coaster! Write <code>canRide(age, height)</code>: true only if age is <b>8 or more</b> AND height is <b>120 or more</b>.",
+     starter:L('function canRide(age, height) {','  // your code','}'),
+     tests:[['canRide(10,130)',true],['canRide(10,100)',false],['canRide(6,140)',false],['canRide(8,120)',true],['canRide(5,90)',false]],
+     solution:L('function canRide(age, height) {','  return age >= 8 && height >= 120;','}'), pts:30,
+     hint:"Two comparisons joined by <code>&amp;&amp;</code>. Use <code>&gt;=</code> because exactly 8 / 120 is allowed.",
+     why:"<code>age &gt;= 8</code> and <code>height &gt;= 120</code> each give a boolean. <code>&amp;&amp;</code> says &ldquo;both must be true&rdquo;. A tall 6-year-old fails the first, a short 10-year-old fails the second &mdash; exactly like the real ride sign." }
+  ]},
+
+/* ======================= WORLD 5 ======================= */
+{ id:'loop', name:'Loop Lagoon', emoji:'🔁', c:'#a45cff',
+  tag:'Repeat things without typing them again',
+  story:"The tide goes in, the tide goes out, never a doubt. In Loop Lagoon you will teach your code to repeat tasks 10, 1000 or a million times.",
+  learned:['A <code>for</code> loop has 3 parts: <b>start; keep-going test; step</b>','<code>i++</code> means &ldquo;add 1 to i&rdquo;','<code>while</code> repeats as long as its condition stays true','Forget to change the condition → <b>infinite loop</b>','The <b>accumulator</b> pattern: start at 0, add inside the loop'],
+  lessons:[
+   { t:'The for loop 🏃',
+     real:"Your coach says &ldquo;run 3 laps&rdquo;. You do not need three separate instructions: count laps, and stop when you reach 3. That is a <b>for loop</b>.",
+     text:"A loop repeats a block of code. A <code>for</code> loop is perfect when you know how many times.",
+     code:[
+      ['for (let i = 1; i <= 3; i++) {','Three parts inside the brackets: <b>(1) let i = 1</b> &mdash; start counting at 1 (<b>i</b> is the lap counter). <b>(2) i &lt;= 3</b> &mdash; keep going while this is true. <b>(3) i++</b> &mdash; after each lap add 1 to i.'],
+      ['  console.log("Lap " + i);','The body. Runs once per lap: &ldquo;Lap 1&rdquo;, &ldquo;Lap 2&rdquo;, &ldquo;Lap 3&rdquo;.'],
+      ['}','After the body: do the step (i++), test again. When i becomes 4, 4 &lt;= 3 is false → the loop ends.']],
+     tip:"<b>Trace it like a detective:</b> i=1 → run → i=2 → run → i=3 → run → i=4 → test fails → stop. The body ran exactly 3 times." },
+   { t:'The while loop ⏳',
+     real:"Stirring soup <b>until</b> it is hot, or pressing snooze <b>while</b> you are still sleepy. You do not know how many times &mdash; you just keep going while a condition holds.",
+     text:"<code>while (condition)</code> repeats as long as the condition is true. <b>You</b> must change something inside so it eventually becomes false!",
+     code:[
+      ['let water = 100;','A plant tank with 100 liters.'],
+      ['let days = 0;','Day counter.'],
+      ['while (water > 20) {','Keep looping while the tank has more than 20 liters.'],
+      ['  water = water - 30;','Each day the plant drinks 30: 100 → 70 → 40 → 10.'],
+      ['  days = days + 1;','Count the day.'],
+      ['}','After 3 rounds water is 10, and 10 &gt; 20 is false → stop.'],
+      ['console.log(days);','Prints <code>3</code>.']],
+     tip:"<b>Danger: the infinite loop!</b> If nothing inside the loop changes <code>water</code>, the condition stays true forever and your program freezes. (Don&rsquo;t worry &mdash; Code Quest stops runaway code after 2 seconds.)" },
+   { t:'The accumulator pattern 🐷',
+     real:"A <b>piggy bank</b>: start empty (0). Every day drop in a coin and the total grows. Programmers use this trick everywhere: totals, counts, scores.",
+     text:"Create a variable <i>before</i> the loop, then update it <i>inside</i> the loop.",
+     code:[
+      ['let total = 0;','The empty piggy bank. Must be created <b>outside</b> the loop, or it would reset each lap.'],
+      ['for (let i = 1; i <= 4; i++) {','Laps 1, 2, 3, 4.'],
+      ['  total = total + i;','Add the current lap number: 0+1=1, 1+2=3, 3+3=6, 6+4=10.'],
+      ['}','Loop finished.'],
+      ['console.log(total);','Prints <code>10</code> &mdash; the sum 1+2+3+4.']],
+     tip:"Shortcut: <code>total += i</code> means the same as <code>total = total + i</code>." }
+  ],
+  ch:[
+   { type:'output', q:"What does this code print? (type the numbers separated by spaces)", code:L('for (let i = 0; i < 3; i++) {','  console.log(i);','}'), answer:'0 1 2',
+     hint:"i starts at 0, and the loop stops <b>before</b> 3.",
+     why:"i = 0 → print 0. i = 1 → print 1. i = 2 → print 2. i = 3 → 3 &lt; 3 is false → stop. Programmers often start counting at 0 &mdash; you will see why in the Array Arcade!" },
+   { type:'quiz', q:"How many times is &ldquo;Hi&rdquo; printed?", code:L('for (let i = 1; i <= 5; i++) {','  console.log("Hi");','}'), o:['4','5','6','1'], a:1,
+     hint:"List out the values of i: 1, 2, ...",
+     why:"i takes the values 1, 2, 3, 4, 5 &mdash; that is 5 laps. Note the <code>&lt;=</code>: with <code>&lt; 5</code> it would be only 4 laps. Off-by-one mistakes are the most famous loop bug." },
+   { type:'quiz', q:"Why does this loop never stop?", code:L('let i = 0;','while (i < 3) {','  console.log(i);','}'), o:['i never changes, so i < 3 is always true','while loops can only run once','console.log is broken','3 is too small'], a:0,
+     hint:"What happens to <code>i</code> inside the loop?",
+     why:"Nothing inside the loop changes <code>i</code>, so <code>i &lt; 3</code> stays true forever. Fix: add <code>i++;</code> inside. It is like an alarm that never turns off because nobody presses the button." },
+   { type:'code', q:"Write <code>sumTo(n)</code> that returns 1 + 2 + 3 + ... + n. (For n = 0 the answer is 0.)",
+     starter:L('function sumTo(n) {','  // use the piggy-bank pattern','}'),
+     tests:[['sumTo(3)',6],['sumTo(10)',55],['sumTo(1)',1],['sumTo(0)',0]],
+     solution:L('function sumTo(n) {','  let total = 0;','  for (let i = 1; i <= n; i++) {','    total = total + i;','  }','  return total;','}'), pts:25,
+     hint:"Create <code>let total = 0</code>, loop <code>i</code> from 1 to n adding it, then return total.",
+     why:"The piggy-bank pattern: <b>start at 0 → loop → add each i → return</b>. For n = 0 the loop body never runs (1 &lt;= 0 is false), so the answer stays 0 &mdash; the code handles that edge case for free!" },
+   { type:'code', bug:true, q:"🐛 <b>Bug hunt:</b> <code>countUp(3)</code> should return <code>&quot;1 2 3&quot;</code> but returns something else. Fix it!",
+     starter:L('function countUp(n) {','  let out = "";','  for (let i = 0; i < n; i++) {','    out = out + i + " ";','  }','  return out.trim();','}'),
+     tests:[['countUp(3)','1 2 3'],['countUp(1)','1'],['countUp(5)','1 2 3 4 5']],
+     solution:L('function countUp(n) {','  let out = "";','  for (let i = 1; i <= n; i++) {','    out = out + i + " ";','  }','  return out.trim();','}'), pts:30,
+     hint:"Two things are off: where the counter <b>starts</b> and where it <b>stops</b>.",
+     why:"It started at 0 and stopped before n, giving <code>&quot;0 1 2&quot;</code>. We need <code>i = 1</code> and <code>i &lt;= n</code>. This is the famous <b>off-by-one error</b> &mdash; like numbering the floors of a building from 0 when guests expect 1." },
+   { type:'code', boss:true, q:"👹 <b>BOSS:</b> Write <code>factorial(n)</code>: n × (n−1) × ... × 1, and <code>factorial(0)</code> is 1. (Real life: how many ways can n books be arranged on a shelf?)",
+     starter:L('function factorial(n) {','  // start with 1 (not 0!) and multiply','}'),
+     tests:[['factorial(5)',120],['factorial(0)',1],['factorial(1)',1],['factorial(3)',6],['factorial(6)',720]],
+     solution:L('function factorial(n) {','  let result = 1;','  for (let i = 2; i <= n; i++) {','    result = result * i;','  }','  return result;','}'), pts:30,
+     hint:"Same piggy bank pattern, but with multiplication &mdash; so what should the bank start with?",
+     why:"If the bank started at 0, multiplying would give 0 forever. Multiplication&rsquo;s &ldquo;do nothing&rdquo; number is <b>1</b>. For n = 0 or 1 the loop never runs and 1 is returned, exactly as maths says. 5 books can be arranged 120 ways!" }
+  ]},
+
+/* ======================= WORLD 6 ======================= */
+{ id:'arr', name:'Array Arcade', emoji:'🎮', c:'#ff6bb5',
+  tag:'Lists of many things',
+  story:"The arcade has hundreds of games, high scores and tokens. You cannot make a variable for each one &mdash; you need <b>lists</b>!",
+  learned:['An <b>array</b> is an ordered list: <code>["a", "b", "c"]</code>','Positions (indexes) start at <b>0</b>; last index = <code>length - 1</code>','<code>push</code> adds to the end, <code>pop</code> removes from the end, <code>shift</code> removes from the front','<code>for (let x of list)</code> visits every item','Start max/min searches from the <b>first item</b>, not from 0'],
+  lessons:[
+   { t:'Lists in square brackets 📋',
+     real:"A <b>playlist</b> or the carriages of a train. Each song has a position number &mdash; and the first position is 0, like the ground floor in many countries!",
+     text:"An <b>array</b> stores many values in one variable, in order. Each value has an <b>index</b> (its position), starting at 0.",
+     code:[
+      ['let fruits = ["apple", "banana", "cherry"];','Square brackets <b>[ ]</b> make a list; items are separated by commas. Positions: apple = 0, banana = 1, cherry = 2.'],
+      ['console.log(fruits[0]);','<code>fruits[0]</code> means &ldquo;item at position 0&rdquo; → <code>apple</code>. The number is the <i>distance from the start</i>, so the first item is 0 steps away.'],
+      ['console.log(fruits[2]);','Position 2 → <code>cherry</code> (the last one).'],
+      ['console.log(fruits.length);','<b>.length</b> tells you how many items: <code>3</code>. So the last index is always <b>length − 1</b>.']],
+     tip:"<b>Off-by-one alert:</b> in a list of 3, <code>fruits[3]</code> does not exist &mdash; you get <code>undefined</code>. The valid positions are 0, 1, 2." },
+   { t:'Add and remove items 🎟️',
+     real:"A <b>queue at the ticket counter</b>: new people join at the back (push), the person at the front gets served and leaves (shift).",
+     text:"Arrays can grow and shrink with built-in tools called <b>methods</b>.",
+     code:[
+      ['let queue = ["Ann", "Bo"];','Ann is first in line, Bo second.'],
+      ['queue.push("Cy");','<b>push</b> adds to the <i>end</i>: Ann, Bo, Cy.'],
+      ['let first = queue.shift();','<b>shift</b> removes the <i>first</i> item and gives it back to you: first = &ldquo;Ann&rdquo;. The queue is now Bo, Cy. (<b>pop</b> would remove from the end instead.)'],
+      ['console.log(first, queue);','Prints <code>Ann [ \'Bo\', \'Cy\' ]</code>.']],
+     tip:"Cheat sheet: <code>push</code>/<code>pop</code> work at the <b>end</b>; <code>unshift</code>/<code>shift</code> work at the <b>front</b>." },
+   { t:'Looping over a list 🛍️',
+     real:"At the supermarket checkout the cashier scans <b>each</b> item in your cart one after another and adds its price to the total. Loops and arrays are best friends!",
+     text:"<code>for (let item of list)</code> reads as &ldquo;for each item in the list&rdquo;. No counters or indexes needed.",
+     code:[
+      ['let prices = [5, 10, 3];','Three items in the cart.'],
+      ['let sum = 0;','The piggy bank again.'],
+      ['for (let item of prices) {','Each lap, <b>item</b> becomes the next value: first 5, then 10, then 3. The loop ends automatically after the last one.'],
+      ['  sum = sum + item;','0+5=5, 5+10=15, 15+3=18.'],
+      ['}','End of loop.'],
+      ['console.log(sum);','Prints <code>18</code>.']],
+     tip:"Need the position too? Use the classic loop: <code>for (let i = 0; i &lt; list.length; i++)</code> and read <code>list[i]</code>." }
+  ],
+  ch:[
+   { type:'output', q:"What does this code print?", code:L('let fruits = ["apple", "banana", "cherry"];','console.log(fruits[1]);'), answer:'banana',
+     hint:"Index 0 is the first item.",
+     why:"Positions start at 0: apple = 0, banana = <b>1</b>, cherry = 2. So <code>fruits[1]</code> is the <i>second</i> fruit. Think of it as how many steps you are from the start." },
+   { type:'quiz', q:"An array has 5 items. What is the index of the <b>last</b> item?", o:['5','4','6','1'], a:1,
+     hint:"Indexes start at 0.",
+     why:"Indexes run 0, 1, 2, 3, 4 for 5 items. The last index is always <code>list.length - 1</code>." },
+   { type:'output', q:"What does this code print?", code:L('let q = ["a"];','q.push("b");','q.push("c");','console.log(q.length);'), answer:'3',
+     hint:"Count the items after both pushes.",
+     why:"Start with [a]. Pushing b and c gives [a, b, c] &mdash; length 3. <code>push</code> adds to the end each time, just like new people joining a queue." },
+   { type:'code', q:"Write <code>total(list)</code> that returns the sum of all numbers in the array (empty list → 0).",
+     starter:L('function total(list) {','  // loop over list and add each number','}'),
+     tests:[['total([1,2,3])',6],['total([])',0],['total([10,-2])',8]],
+     solution:L('function total(list) {','  let sum = 0;','  for (let n of list) {','    sum = sum + n;','  }','  return sum;','}'), pts:25,
+     hint:"Create <code>let sum = 0;</code> then <code>for (let n of list) { ... }</code>.",
+     why:"Same cashier logic: start the sum at 0, visit each item once, add it. With an empty list the loop does zero laps, so 0 is returned &mdash; correct without any special case." },
+   { type:'code', bug:true, q:"🐛 <b>Bug hunt:</b> <code>biggest(list)</code> finds the largest number, but fails for <code>[-5, -2, -9]</code> (should be -2). Fix it!",
+     starter:L('function biggest(list) {','  let max = 0;','  for (let n of list) {','    if (n > max) max = n;','  }','  return max;','}'),
+     tests:[['biggest([3,9,2])',9],['biggest([-5,-2,-9])',-2],['biggest([7])',7]],
+     solution:L('function biggest(list) {','  let max = list[0];','  for (let n of list) {','    if (n > max) max = n;','  }','  return max;','}'), pts:30,
+     hint:"Starting with <code>max = 0</code> assumes at least one number is bigger than 0. Start from a number that is actually in the list.",
+     why:"With all negatives, no number beats the starting 0, so 0 (which is not even in the list!) was returned. Starting from <code>list[0]</code> means the champion is always a real contestant. Real life: to find the tallest student, start with the first student &mdash; not an imaginary 0-cm person." },
+   { type:'code', boss:true, q:"👹 <b>BOSS:</b> Write <code>countHighScores(scores, limit)</code> that counts how many scores are <b>at least</b> <code>limit</code>.",
+     starter:L('function countHighScores(scores, limit) {','  // your code','}'),
+     tests:[['countHighScores([10,50,80,90],60)',2],['countHighScores([],5)',0],['countHighScores([5,5,5],5)',3],['countHighScores([1,2],100)',0]],
+     solution:L('function countHighScores(scores, limit) {','  let count = 0;','  for (let s of scores) {','    if (s >= limit) count = count + 1;','  }','  return count;','}'), pts:30,
+     hint:"A counter that starts at 0 and goes up by 1 only when a score passes the test. Combine: loop + if + accumulator!",
+     why:"This boss mixes three skills: <b>loop</b> (visit every score), <b>if</b> (is it &gt;= limit?) and <b>accumulator</b> (count up). Real life: a teacher counting how many students passed the exam." }
+  ]},
+
+/* ======================= WORLD 7 ======================= */
+{ id:'obj', name:'Object Observatory', emoji:'🔭', c:'#ff5d73',
+  tag:'Describe real things with objects',
+  story:"The final world! Real things have many <i>properties</i>: a player has a name, a score and lives. Objects let you model anything. Beat the final boss to become a Code Wizard!",
+  learned:['An <b>object</b> groups labeled values: <code>{ name: "Zed", level: 5 }</code>','Read with a dot: <code>hero.name</code>','Change or add: <code>hero.level = 6</code>','Arrays of objects model real data: contacts, products, players','Pattern: loop + compare to find the best item'],
+  lessons:[
+   { t:'Objects are ID cards 🪪',
+     real:"A <b>contact card</b> or a student ID: it has <i>labels</i> (name, age, class) each with a <i>value</i>. An array is a numbered list; an object is a card with named fields.",
+     text:"Use an <b>object</b> to describe one thing with several properties. Each property is <code>label: value</code>.",
+     code:[
+      ['let hero = {','Curly braces <b>{ }</b> create an object. We store it in the variable <b>hero</b>.'],
+      ['  name: "Zed",','Property 1: label <b>name</b>, value &ldquo;Zed&rdquo;. A comma separates properties.'],
+      ['  level: 5,','Property 2: label <b>level</b>, value 5.'],
+      ['  alive: true','Property 3. The last property has no comma after it.'],
+      ['};','Close the card.'],
+      ['console.log(hero.name);','The <b>dot</b> opens a field: <code>hero.name</code> reads the name property → <code>Zed</code>.'],
+      ['console.log(hero["level"]);','Square brackets with the label in quotes do the same job → <code>5</code>. Handy when the label is in a variable.']],
+     tip:"<b>Array vs. object:</b> use an array when order matters (a playlist), an object when each value has a meaning (a profile)." },
+   { t:'Change, add and show 🛠️',
+     real:"Updating your profile: change your photo, add a new phone number. The card stays the same card &mdash; only its contents change.",
+     text:"Properties can be changed or added at any time with <code>=</code>.",
+     code:[
+      ['let car = { color: "red" };','A car with one property.'],
+      ['car.color = "blue";','The property exists, so its value is <b>replaced</b>: red → blue (we repainted it!).'],
+      ['car.wheels = 4;','The property did not exist, so it is <b>added</b> to the object.'],
+      ['console.log(car);','Prints the whole card: <code>{ color: \'blue\', wheels: 4 }</code>.']],
+     tip:"Surprise: even if the object is declared with <code>const</code>, you can still change its <i>properties</i>. <code>const</code> only stops you from swapping the whole object for another." },
+   { t:'Lists of objects: real-life data 👥',
+     real:"A <b>class register</b>: a list (array) of students, each one a card (object) with name and marks. Almost every app &mdash; Instagram posts, online shop products, contacts &mdash; is exactly this: an array of objects!",
+     text:"Combine everything: loop over an array, read each object&rsquo;s properties, and compare.",
+     code:[
+      ['let team = [','An array of players...'],
+      ['  { name: "Ann", score: 8 },','...card #1 (index 0)...'],
+      ['  { name: "Bo", score: 5 }','...card #2 (index 1).'],
+      ['];','End of the list.'],
+      ['let best = team[0];','Assume the first player is the champion for now. (Same trick as the <b>biggest</b> bug fix!)'],
+      ['for (let p of team) {','Visit every player card, one by one, calling it <b>p</b>.'],
+      ['  if (p.score > best.score) best = p;','Compare scores. If this player beats the current champion, they become the champion.'],
+      ['}','Done checking everyone.'],
+      ['console.log(best.name);','Prints <code>Ann</code> (8 beats 5).']],
+     tip:"This <b>loop + compare</b> pattern is how you find the cheapest product, the oldest user or the top scorer in any data." }
+  ],
+  ch:[
+   { type:'output', q:"What does this code print?", code:L('let hero = { name: "Zed", level: 5 };','console.log(hero.name + hero.level);'), answer:'Zed5',
+     hint:"A string + a number glues them together (Math Market!).",
+     why:"<code>hero.name</code> is &ldquo;Zed&rdquo; and <code>hero.level</code> is 5. A text + number with <code>+</code> glues them: <code>Zed5</code>." },
+   { type:'quiz', q:"How do you read the <code>age</code> property of this object?", code:'let user = { name: "Mia", age: 12 };', o:['user.age','age.user','user(age)','user->age'], a:0,
+     hint:"Object name, dot, property name.",
+     why:"<code>object.property</code> &mdash; the dot says &ldquo;look inside this card for the field called age&rdquo;. The other forms are from other languages or invalid." },
+   { type:'output', q:"What does this code print?", code:L('let car = { color: "red" };','car.color = "blue";','car.wheels = 4;','console.log(car.color + car.wheels);'), answer:'blue4',
+     hint:"The color gets replaced; wheels is a new property.",
+     why:"Line 2 replaces red with blue; line 3 adds <code>wheels: 4</code>. Then <code>&quot;blue&quot; + 4</code> glues to <code>blue4</code>." },
+   { type:'code', q:"Write <code>makePlayer(name)</code> that returns an object with <code>name</code> (the input), <code>score</code> of 0 and <code>lives</code> of 3.",
+     starter:L('function makePlayer(name) {','  // return an object { ... }','}'),
+     tests:[['makePlayer("Zed")',{name:'Zed',score:0,lives:3}],['makePlayer("Mia")',{name:'Mia',score:0,lives:3}]],
+     solution:L('function makePlayer(name) {','  return { name: name, score: 0, lives: 3 };','}'), pts:25,
+     hint:"<code>return { name: name, score: 0, lives: 3 };</code> &mdash; fill in the two blanks of that idea yourself.",
+     why:"A function that builds objects is a <b>card printer</b>: give it a name, get a fresh player card with starting score and lives. Every new game character in a real game starts life like this." },
+   { type:'code', q:"Write <code>totalScore(players)</code> that adds up the <code>score</code> of every player in the array (empty → 0).",
+     starter:L('function totalScore(players) {','  // loop + piggy bank + p.score','}'),
+     tests:[['totalScore([{name:"A",score:10},{name:"B",score:5}])',15],['totalScore([])',0],['totalScore([{name:"Z",score:7}])',7]],
+     solution:L('function totalScore(players) {','  let sum = 0;','  for (let p of players) {','    sum = sum + p.score;','  }','  return sum;','}'), pts:30,
+     hint:"Same as <code>total(list)</code> from the Array Arcade, but add <code>p.score</code> instead of the item itself.",
+     why:"Each <code>p</code> is a whole card, so we reach into it with <code>p.score</code>. A class teacher adding every student&rsquo;s marks does the same: open each card, read the number, add." },
+   { type:'code', boss:true, q:"👹 <b>FINAL BOSS:</b> Write <code>topPlayer(players)</code> that returns the <b>name</b> of the player with the highest <code>score</code>.",
+     starter:L('function topPlayer(players) {','  // champion pattern: start with players[0]','}'),
+     tests:[['topPlayer([{name:"Ana",score:5},{name:"Bo",score:9},{name:"Cy",score:7}])','Bo'],['topPlayer([{name:"Solo",score:0}])','Solo'],['topPlayer([{name:"X",score:-3},{name:"Y",score:-1}])','Y']],
+     solution:L('function topPlayer(players) {','  let best = players[0];','  for (let p of players) {','    if (p.score > best.score) best = p;','  }','  return best.name;','}'), pts:40,
+     hint:"Start with <code>best = players[0]</code>, loop, replace <code>best</code> whenever <code>p.score &gt; best.score</code>, and finally return <code>best.name</code>.",
+     why:"You combined <b>functions, loops, if, arrays and objects</b> in one solution. Starting from <code>players[0]</code> (instead of 0) handles negative scores &mdash; the lesson from the biggest-number bug. This is how leaderboards in real games work!" }
+  ]}
+];
+
+const BADGES = [
+  { id:'spark',   e:'⚡', n:'First Spark',     d:'Answer your first challenge', t:()=>Object.keys(SV.best).length>0 },
+  { id:'fire',    e:'🔥', n:'On Fire',         d:'5 correct answers in a row (no mistakes)', t:()=>SV.bestStreak>=5 },
+  { id:'rocket',  e:'🚀', n:'Unstoppable',     d:'10 correct answers in a row', t:()=>SV.bestStreak>=10 },
+  { id:'bug',     e:'🐛', n:'Bug Squasher',    d:'Fix a bug-hunt challenge yourself', t:()=>WORLDS.some((W,wi)=>W.ch.some((c,i)=>c.bug&&SV.best[W.id+':'+i]&&!SV.best[W.id+':'+i].sol)) },
+  { id:'boss',    e:'👹', n:'Boss Slayer',     d:'Defeat a boss without peeking at the solution', t:()=>WORLDS.some((W)=>W.ch.some((c,i)=>c.boss&&SV.best[W.id+':'+i]&&!SV.best[W.id+':'+i].sol)) },
+  { id:'explore', e:'🗺️', n:'Explorer',        d:'Clear your first world', t:()=>WORLDS.some((_,i)=>worldDone(i)) },
+  { id:'perfect', e:'💎', n:'Perfectionist',   d:'Earn 3 stars in any world', t:()=>WORLDS.some((_,i)=>stars(i)===3) },
+  { id:'half',    e:'🛡️', n:'Halfway Hero',    d:'Clear 4 worlds', t:()=>WORLDS.filter((_,i)=>worldDone(i)).length>=4 },
+  { id:'wizard',  e:'🧙', n:'Code Wizard',     d:'Clear all 7 worlds', t:()=>WORLDS.every((_,i)=>worldDone(i)) }
+];
+const RANKS = ['🐣 Rookie','🎓 Apprentice','💻 Coder','🕶️ Hacker','🧙 Wizard','🐉 Legend'];
+const CHEER = ['Nailed it!','Brilliant!','Boom! 💥','You are on a roll!','Clean solve!','Genius move!','Yes! Exactly right.'];
+const OOPS  = ['Not quite &mdash; mistakes are how brains learn!','Close! Read it once more.','Almost! Try again.','Oops! Every pro has seen this error.'];
+
+/* ---------- 4) game engine: save, score, sound, effects ---------- */
+const KEY = 'codequest.v1';
+let SV = (function(){ try { return Object.assign({best:{},badges:[],sound:true,bestStreak:0}, JSON.parse(localStorage.getItem(KEY)||'{}')); } catch(e){ return {best:{},badges:[],sound:true,bestStreak:0}; } })();
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(SV)); } catch(e){} };
+let streak = 0;
+let S = {};                       // current screen/session state
+
+const total = () => Object.values(SV.best).reduce((a,b)=>a+(b.pts||0),0);
+const bestOf = (w,i) => SV.best[WORLDS[w].id+':'+i];
+const worldDone = w => WORLDS[w].ch.every((_,i)=>bestOf(w,i));
+const worldCount = w => WORLDS[w].ch.filter((_,i)=>bestOf(w,i)).length;
+const unlocked = w => w===0 || worldDone(w-1);
+function stars(w){
+  if (!worldDone(w)) return 0;
+  const m = WORLDS[w].ch.reduce((a,_,i)=>{ const b=bestOf(w,i); return a + b.wrong + b.hints + (b.sol?3:0); }, 0);
+  return m<=1 ? 3 : m<=4 ? 2 : 1;
+}
+const totalStars = () => WORLDS.reduce((a,_,i)=>a+stars(i),0);
+const basePts = c => (c.pts || (c.type==='quiz'?10:c.type==='output'?15:25)) * (c.boss?2:1);
+const comboMult = n => n>=6 ? 2 : n>=3 ? 1.5 : 1;
+const PER_LEVEL = 90;
+
+function header(){
+  const s = total(), lv = Math.floor(s/PER_LEVEL)+1;
+  $('#rank').textContent = 'Lv ' + lv + ' · ' + RANKS[Math.min(RANKS.length-1, Math.floor((lv-1)/2))];
+  $('#xpn').textContent = (s % PER_LEVEL) + ' / ' + PER_LEVEL + ' XP';
+  $('#xpbar').style.width = ((s % PER_LEVEL)/PER_LEVEL*100) + '%';
+  $('#score').textContent = s; $('#stars').textContent = totalStars(); $('#streak').textContent = streak;
+  $('#snd').textContent = SV.sound ? '🔊' : '🔇';
+}
+
+// --- sound (WebAudio, no files needed) ---
+let AC;
+function sfx(kind){
+  if (!SV.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const seq = { ok:[[523,.09],[659,.09],[784,.16]], bad:[[220,.14],[165,.2]], win:[[523,.1],[659,.1],[784,.1],[1047,.3]], tick:[[660,.05]], badge:[[784,.1],[988,.1],[1319,.25]] }[kind] || [];
+    let t = AC.currentTime;
+    seq.forEach(([f,d]) => { const o=AC.createOscillator(), g=AC.createGain(); o.type = kind==='bad'?'sawtooth':'triangle'; o.frequency.value=f; g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.0001,t+d); o.connect(g).connect(AC.destination); o.start(t); o.stop(t+d); t+=d*.9; });
+  } catch(e){}
+}
+// --- confetti ---
+function confetti(n=90){
+  const cv = $('#fx'), cx = cv.getContext('2d'); cv.width = innerWidth; cv.height = innerHeight;
+  const cols = ['#ffd23f','#3ddc97','#35d0ff','#ff5d73','#a45cff','#ff9a3d'];
+  const ps = Array.from({length:n}, () => ({x:innerWidth/2+(Math.random()-.5)*200, y:innerHeight*.35, vx:(Math.random()-.5)*14, vy:-Math.random()*13-3, s:5+Math.random()*7, c:pick(cols), r:Math.random()*6, vr:(Math.random()-.5)*.4}));
+  (function f(){
+    cx.clearRect(0,0,cv.width,cv.height); let alive=false;
+    ps.forEach(p => { p.vy+=.45; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; if(p.y<cv.height+20) alive=true; cx.save(); cx.translate(p.x,p.y); cx.rotate(p.r); cx.fillStyle=p.c; cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6); cx.restore(); });
+    if (alive) requestAnimationFrame(f); else cx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+function toast(html){ const t=document.createElement('div'); t.className='toast'; t.innerHTML=html; $('#toast').appendChild(t); setTimeout(()=>t.remove(), 3800); }
+function checkBadges(){
+  BADGES.forEach(b => { if (!SV.badges.includes(b.id) && b.t()) { SV.badges.push(b.id); toast(b.e + ' New badge: ' + b.n + '!'); sfx('badge'); } });
+  save();
+}
+
+/* ---------- 5) screens ---------- */
+const app = $('#app');
+const cur = () => WORLDS[S.w].ch[S.ch];
+const setW = w => document.documentElement.style.setProperty('--w', WORLDS[w].c);
+
+// ===== MAP / HOME =====
+function home(){
+  S = {}; document.documentElement.style.setProperty('--w', '#7c5cff'); header();
+  const nextW = WORLDS.findIndex((_,i)=>!worldDone(i));
+  const started = Object.keys(SV.best).length > 0;
+  app.innerHTML = `
+  <section class="hero">
+    <div class="bit">🤖</div>
+    <div>
+      <h1>${started ? 'Welcome back, Coder!' : 'Hi! I am Bit, your coding buddy.'}</h1>
+      <p>${nextW === -1 ? '🏆 You cleared every world! Replay any world to beat your best score and earn more stars.'
+         : 'Each world teaches one big idea with <b>real-life examples</b>, explains code <b>line by line</b>, then lets you <b>play challenges</b> for points. Earn combos, collect stars &amp; badges, and unlock the next world!'}</p>
+      ${nextW !== -1 ? `<button class="pri go" onclick="G.open(${nextW})">${started?'▶ Continue':'▶ Start your quest'}: ${WORLDS[nextW].emoji} ${WORLDS[nextW].name}</button>` : ''}
+    </div>
+  </section>
+  <div class="map">${WORLDS.map((W,i)=>{
+    const lock = !unlocked(i), s = stars(i);
+    return `<button class="world ${lock?'locked':''} ${i===nextW?'next':''}" style="--w:${W.c}" ${lock?'':`onclick="G.open(${i})"`}>
+      <span class="num">${i+1}</span><div class="em">${lock?'🔒':W.emoji}</div>
+      <h3>${W.name}</h3><p>${lock?'Clear <b>'+WORLDS[i-1].name+'</b> to unlock':W.tag}</p>
+      <div class="bar"><i style="width:${worldCount(i)/W.ch.length*100}%;background:${W.c}"></i></div>
+      <div class="meta"><span>${worldCount(i)}/${W.ch.length} challenges</span><span class="st">${'★'.repeat(s)}${'☆'.repeat(3-s)}</span></div></button>`;
+  }).join('')}</div>`;
+}
+
+// ===== LEARN =====
+function learn(){
+  const W = WORLDS[S.w], l = W.lessons[S.lesson]; setW(S.w); S.mode='learn'; S.line=-1; header();
+  const n = W.lessons.length;
+  app.innerHTML = `
+  <div class="topbar"><button class="ghost" onclick="G.home()">← Map</button><div class="wtitle">${W.emoji} ${W.name}</div><button class="ghost" onclick="G.play()">⚔️ Skip to challenges</button></div>
+  ${S.lesson===0 ? `<p style="text-align:center;color:var(--mute);margin:0 0 6px">${W.story}</p>`:''}
+  <div class="dots">${W.lessons.map((_,i)=>`<i class="${i<S.lesson?'ok':i===S.lesson?'cur':''}"></i>`).join('')}</div>
+  <div class="card">
+    <div class="tags"><span class="tag">📖 LESSON ${S.lesson+1} / ${n}</span></div>
+    <h2>${l.t}</h2>
+    <div class="real">🌍 <b>Real-world picture:</b> ${l.real}</div>
+    <p>${l.text}</p>
+    <div class="codebox">${l.code.map((c,i)=>`<div class="cl" id="cl${i}" onclick="G.line(${i})"><span class="ln">${i+1}</span><code>${hl(c[0])||' '}</code></div>`).join('')}</div>
+    <div class="explain"><div class="bit-s">🤖</div><div id="exptxt">Click any line of code (or press <b>Next line ▶</b>) and I will explain exactly what the computer does &mdash; step by step.</div></div>
+    <div class="row"><button class="ghost" onclick="G.nextLine(-1)">◀ Previous line</button><button class="pri" onclick="G.nextLine(1)">Next line ▶</button></div>
+    ${l.tip?`<div class="tip">⚠️ ${l.tip}</div>`:''}
+    <details><summary>🧪 Try it yourself &mdash; edit the code and press Run!</summary>
+      <textarea id="pg" class="editor" spellcheck="false" onkeydown="G.tab(event)">${esc(l.code.map(c=>c[0]).join('\n'))}</textarea>
+      <div class="row"><button class="pri go" onclick="G.runPg()">▶ Run</button></div><pre class="out" id="pgout">(output appears here)</pre></details>
+  </div>
+  <div class="row"><button class="ghost" ${S.lesson===0?'disabled style="opacity:.4"':''} onclick="G.lessonGo(-1)">◀ Back</button><span class="grow"></span>
+    ${S.lesson<n-1 ? `<button class="pri" onclick="G.lessonGo(1)">Next lesson ▶</button>` : `<button class="pri go" onclick="G.play()">⚔️ Start challenges!</button>`}</div>`;
+  window.scrollTo(0,0);
+}
+
+// ===== CHALLENGES =====
+function challenge(){
+  const W = WORLDS[S.w], c = cur(); setW(S.w); S.mode='play'; header();
+  Object.assign(S, {wrong:0, hints:0, done:false, sol:false, hintOn:false});
+  const label = c.bug ? '🐛 BUG HUNT' : c.type==='quiz' ? '🧠 QUIZ' : c.type==='output' ? '🔮 PREDICT THE OUTPUT' : '⌨️ CODE IT';
+  let body = '';
+  if (c.type==='quiz') body = `<div class="opts">${c.o.map((o,i)=>`<button class="opt" id="o${i}" onclick="G.pick(${i})">${esc(o)}</button>`).join('')}</div>`;
+  if (c.type==='output') body = `<textarea id="ans" rows="2" placeholder="Type exactly what gets printed…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();G.check()}"></textarea><div class="row"><button class="pri" id="chk" onclick="G.check()">Check ✔</button></div>`;
+  if (c.type==='code') body = `<textarea id="ed" class="editor" spellcheck="false" onkeydown="G.tab(event)">${esc(c.starter)}</textarea><div class="row"><button class="pri" id="chk" onclick="G.check()">▶ Run tests</button><span style="color:var(--mute);font-size:13px">Ctrl/⌘ + Enter</span></div><div class="tests" id="tests"></div><pre class="out" id="cout" style="display:none"></pre>`;
+  app.innerHTML = `
+  <div class="topbar"><button class="ghost" onclick="G.home()">← Map</button><div class="wtitle">${W.emoji} ${W.name}</div><button class="ghost" onclick="G.learn()">📖 Lessons</button></div>
+  <div class="pips">${W.ch.map((_,i)=>`<i class="${bestOf(S.w,i)&&i!==S.ch?'ok':i===S.ch?'cur':''}"></i>`).join('')}</div>
+  <div class="card" id="card">
+    <div class="tags"><span class="tag">${label}</span>${c.boss?'<span class="tag boss">BOSS · DOUBLE POINTS</span>':''}<span class="tag pts">⭐ up to ${basePts(c)} pts</span><span class="tag">${S.ch+1} / ${W.ch.length}</span></div>
+    <h2>${c.q}</h2>
+    ${c.code && c.type!=='code' ? `<pre class="code">${hl(c.code)}</pre>` : ''}
+    ${body}
+    <div id="hintbox"></div><div id="msg"></div>
+    <div class="row" id="tools"><button class="ghost" id="hintBtn" onclick="G.hint()">💡 Hint (−5 pts)</button></div>
+  </div>`;
+  window.scrollTo(0,0);
+  const ed = $('#ed'); if (ed) ed.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key==='Enter') G.check(); });
+}
+
+function wrongAnswer(extra=''){
+  S.wrong++; streak = 0; header(); sfx('bad');
+  $('#card').classList.remove('shake'); void $('#card').offsetWidth; $('#card').classList.add('shake');
+  $('#msg').innerHTML = `<div class="fb bad"><h3>❌ ${pick(OOPS)}</h3>${extra}</div>`;
+  if (S.wrong >= 3 && !S.done && !$('#solBtn')) $('#tools').insertAdjacentHTML('beforeend', `<button class="ghost" id="solBtn" onclick="G.solution()">🏳️ Show solution (0 pts)</button>`);
+}
+function solved(){
+  S.done = true; const c = cur(), base = basePts(c);
+  const raw = S.sol ? 0 : Math.max(Math.ceil(base*.3), base - 4*S.wrong - 5*S.hints);
+  const clean = S.wrong===0 && !S.sol;
+  if (clean) streak++; else if (S.sol) streak = 0;
+  SV.bestStreak = Math.max(SV.bestStreak, streak);
+  const mult = clean ? comboMult(streak) : 1, pts = Math.round(raw*mult);
+  const k = WORLDS[S.w].id+':'+S.ch, old = SV.best[k];
+  if (!old || pts >= old.pts) SV.best[k] = { pts, wrong:S.wrong, hints:S.hints, sol:S.sol };
+  const first = !old;
+  save(); header(); checkBadges();
+  document.querySelectorAll('.opt,#chk,#ed,#ans,#hintBtn,#solBtn').forEach(e => e.disabled = true);
+  const last = S.ch === WORLDS[S.w].ch.length-1;
+  $('#msg').innerHTML = `<div class="fb ${S.sol?'info':'good'}">
+    <h3>${S.sol ? '📘 Here is how it works' : '✅ ' + pick(CHEER)}</h3>
+    ${S.sol ? '' : `<div class="bigpts">+${pts} pts ${mult>1?`<span class="combo">🔥 COMBO ×${mult}</span>`:''}</div>
+    <small style="color:var(--mute)">${S.wrong||S.hints ? `(${S.wrong} mistake${S.wrong===1?'':'s'}, ${S.hints} hint${S.hints===1?'':'s'} used &mdash; do it clean for full points!)` : 'Perfect, no mistakes or hints!'}${first?'':' · replay: best score kept'}</small>`}
+    <p><b>🧠 Why:</b> ${c.why}</p>
+    ${S.sol && c.type==='code' ? `<pre class="code">${hl(c.solution)}</pre>` : ''}
+    <div class="row"><span class="grow"></span><button class="pri go" onclick="G.next()">${last?'Finish world 🏁':'Next ▶'}</button></div></div>`;
+  if (!S.sol) { sfx('ok'); confetti(c.boss ? 160 : 45); }
+  $('#msg').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+// ===== RESULT =====
+function result(){
+  const W = WORLDS[S.w], st = stars(S.w), pts = W.ch.reduce((a,_,i)=>a+bestOf(S.w,i).pts,0);
+  const mistakes = W.ch.reduce((a,_,i)=>a+bestOf(S.w,i).wrong,0);
+  const allDone = WORLDS.every((_,i)=>worldDone(i)), nextOk = S.w < WORLDS.length-1;
+  S.mode='result'; header(); checkBadges(); sfx('win'); confetti(220);
+  app.innerHTML = `<div class="card result">
+    <div class="bigstars">${'★'.repeat(st)}${'☆'.repeat(3-st)}</div>
+    <h1>${allDone ? '🧙 You are a CODE WIZARD!' : W.emoji + ' ' + W.name + ' cleared!'}</h1>
+    <p>${st===3 ? 'Flawless! Almost no mistakes.' : st===2 ? 'Great job! Replay for the 3rd star: fewer mistakes and hints.' : 'You finished it &mdash; that is what matters! Replay later to collect more stars.'}</p>
+    <div class="stats"><div class="stat"><b>${pts}</b>world points</div><div class="stat"><b>${mistakes}</b>mistakes</div><div class="stat"><b>${total()}</b>total score</div></div>
+    <div class="learned"><h3>🧠 What you learned</h3><ul>${W.learned.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    ${allDone ? `<div class="tip" style="border-color:var(--good);background:#3ddc9718;text-align:left">🎉 <b>You finished all 7 worlds!</b> You can now store data, make decisions, repeat actions, build functions, and model real things with arrays and objects &mdash; the core of <i>every</i> programming language. <b>Next steps:</b> build a tiny project (a to-do list, a quiz, a tip calculator), learn HTML &amp; CSS to make web pages, and keep replaying worlds for 3 stars.</div>` : ''}
+    <div class="row" style="justify-content:center"><button class="ghost" onclick="G.open(${S.w},true)">🔁 Replay world</button><button class="ghost" onclick="G.home()">🗺️ Map</button>${nextOk?`<button class="pri go" onclick="G.open(${S.w+1})">Next world: ${WORLDS[S.w+1].emoji} ${WORLDS[S.w+1].name} ▶</button>`:''}</div>
+  </div>`;
+  window.scrollTo(0,0);
+}
+
+function badgesModal(){
+  $('#mbox').innerHTML = `<h2>🏅 Badges (${SV.badges.length}/${BADGES.length})</h2>` + BADGES.map(b=>`<div class="badge ${SV.badges.includes(b.id)?'':'lock'}"><div class="e">${b.e}</div><div><b>${b.n}</b><br><small>${b.d}</small></div></div>`).join('') +
+    `<div class="row"><button class="ghost" onclick="G.reset()">🗑️ Reset all progress</button><span class="grow"></span><button class="pri" onclick="G.closeModal()">Close</button></div>`;
+  $('#modal').classList.add('on');
+}
+
+/* ----- public actions called from the page ----- */
+const G = {
+  home, learn,
+  open(w, replay){ if(!unlocked(w)) return; S = {w, lesson:0, ch:0}; setW(w); if (replay) { S.ch=0; challenge(); } else learn(); },
+  play(){ const W = WORLDS[S.w]; let i = W.ch.findIndex((_,j)=>!bestOf(S.w,j)); S.ch = i<0 ? 0 : i; challenge(); },
+  lessonGo(d){ S.lesson += d; learn(); },
+  line(i){
+    S.line = i; const c = WORLDS[S.w].lessons[S.lesson].code;
+    document.querySelectorAll('.cl').forEach((e,j)=>e.classList.toggle('on', j===i));
+    $('#exptxt').innerHTML = `<b>Line ${i+1}:</b> <code>${esc(c[i][0].trim())}</code><br>${c[i][1]}`; sfx('tick');
+  },
+  nextLine(d){
+    const c = WORLDS[S.w].lessons[S.lesson].code; let i = S.line;
+    do { i += d; if (i >= c.length) i = 0; if (i < 0) i = c.length-1; } while (!c[i][1] && c.some(x=>x[1]));
+    G.line(i);
+  },
+  async runPg(){ const r = await runCode($('#pg').value); $('#pgout').textContent = r.error ? '⚠️ ' + r.error : (r.logs.join('\n') || '(ran fine, but nothing was printed — use console.log!)'); },
+  tab(e){ if (e.key==='Tab') { e.preventDefault(); const t=e.target, s=t.selectionStart; t.value = t.value.slice(0,s)+'  '+t.value.slice(t.selectionEnd); t.selectionStart=t.selectionEnd=s+2; } },
+  hint(){
+    if (S.hintOn || S.done) return; S.hintOn = true; S.hints++;
+    $('#hintbox').innerHTML = `<div class="hint">💡 <b>Hint:</b> ${cur().hint}</div>`; $('#hintBtn').disabled = true;
+  },
+  pick(i){
+    if (S.done) return; const c = cur(), b = $('#o'+i);
+    if (i === c.a) { b.classList.add('good'); solved(); }
+    else { b.classList.add('bad'); b.disabled = true; wrongAnswer('<p>That is not it. That option is now crossed out &mdash; try another one!</p>'); }
+  },
+  async check(){
+    if (S.done) return; const c = cur();
+    if (c.type === 'output') {
+      const v = $('#ans').value; if (!v.trim()) return;
+      if (norm(v) === norm(c.answer)) solved(); else wrongAnswer('<p>Trace the code line by line, like a detective. Tip: use the 💡 hint if you are stuck.</p>');
+    } else if (c.type === 'code') {
+      const code = $('#ed').value, r = await runCode(code, c.tests.map(t=>t[0]));
+      const out = $('#cout'); out.style.display = r.logs.length ? 'block' : 'none'; out.textContent = r.logs.length ? 'console: ' + r.logs.join('\n') : '';
+      if (r.error) return wrongAnswer(`<p>⚠️ <b>Error:</b> <code>${esc(r.error)}</code></p><p>Check brackets <code>( ) { }</code>, quotes and semicolons.</p>`);
+      let pass = 0;
+      $('#tests').innerHTML = c.tests.map((t,i) => {
+        const got = r.res[i] && r.res[i].got, ok = got === ser(t[1]); if (ok) pass++;
+        return `<div class="t ${ok?'p':'f'}">${ok?'✅':'❌'} <b>${esc(t[0])}</b> should be <b>${esc(ser(t[1]))}</b>${ok?'':' &mdash; got <b>'+esc(r.res[i] && r.res[i].err ? r.res[i].err : got)+'</b>'}</div>`;
+      }).join('');
+      if (pass === c.tests.length) solved(); else wrongAnswer(`<p><b>${pass} of ${c.tests.length}</b> tests passed. Read the red lines, they tell you exactly what went wrong.</p>`);
+    }
+  },
+  solution(){
+    const c = cur(); S.sol = true;
+    if (c.type === 'code') $('#ed').value = c.solution;
+    if (c.type === 'output') $('#ans').value = c.answer;
+    solved();
+  },
+  next(){ if (S.ch < WORLDS[S.w].ch.length-1) { S.ch++; challenge(); } else result(); },
+  badges: badgesModal,
+  closeModal(){ $('#modal').classList.remove('on'); },
+  sound(){ SV.sound = !SV.sound; save(); header(); sfx('ok'); },
+  reset(){ if (confirm('Erase ALL progress, scores and badges?')) { SV = {best:{},badges:[],sound:true,bestStreak:0}; streak = 0; save(); G.closeModal(); home(); } }
+};
+
+/* ---------- self-test: proves every challenge is solvable (open the console and run __selfTest()) ---------- */
+window.__selfTest = async function(){
+  const bad = []; let n = 0;
+  for (const W of WORLDS) for (const [i,c] of W.ch.entries()) {
+    n++; const id = W.id+':'+(i+1);
+    if (c.type==='quiz' && !(c.a>=0 && c.a<c.o.length)) bad.push(id+' bad answer index');
+    if (c.type==='output') { const r = await runCode(c.code); if (norm(r.logs.join('\n')) !== norm(c.answer)) bad.push(id+' output mismatch: '+r.logs.join('|')); }
+    if (c.type==='code') {
+      const r = await runCode(c.solution, c.tests.map(t=>t[0]));
+      if (r.error) bad.push(id+' solution error '+r.error);
+      else c.tests.forEach((t,j)=>{ if (r.res[j].got !== ser(t[1])) bad.push(id+' solution fails test '+t[0]+' got '+r.res[j].got); });
+      const s = await runCode(c.starter, c.tests.map(t=>t[0]));   // starter must NOT already pass
+      if (!s.error && c.tests.every((t,j)=>s.res[j].got === ser(t[1]))) bad.push(id+' starter already passes!');
+    }
+    if (!c.hint || !c.why) bad.push(id+' missing hint/why');
+  }
+  for (const W of WORLDS) for (const [li,l] of W.lessons.entries()) { const r = await runCode(l.code.map(c=>c[0]).join('\n')); if (r.error) bad.push(W.id+' lesson '+(li+1)+' error '+r.error); }
+  return { challenges:n, problems:bad };
+};
+
+home();
+</script>
+</body>
+</html>
