@@ -9,7 +9,7 @@ import { registerCamera } from '../animation/cameraChoreography';
 import { easeInOut, easeOut, easeIn, remap, mulberry32, smoothstep, lerp } from '../animation/util';
 
 const T_SPLIT = 28.5, T_FLY = 30.7, T_END = 32.0;
-const N = 54;
+const N = 120;
 registerCamera(27, 32, [
   { t: 27.0, p: [0.6, 0.4, 6.4], l: [0, 0, 0], fov: 26, ap: 0.02 },
   { t: 28.4, p: [-0.5, 0.3, 4.0], l: [0, 0, 0], fov: 24, ap: 0.026 },
@@ -28,7 +28,7 @@ export default function Scene06_Transformation() {
     const r = mulberry32(77);
     return Array.from({ length: N }, (_, i) => {
       const a = r() * 6.283, el = (r() - 0.5) * 1.6;
-      return { d: [Math.cos(a) * Math.cos(el), Math.sin(el) * 0.9, Math.sin(a) * Math.cos(el) * 1.2 - 0.3], dist: 2.2 + r() * 7.5, delay: r() * 0.35, rot: [r() * 6, r() * 6, r() * 6], sp: [(r() - 0.5) * 0.8, (r() - 0.5) * 0.8, (r() - 0.5) * 0.5], s: 0.55 + r() * 0.4, drift: [(r() - 0.5) * 0.25, (r() - 0.5) * 0.18] };
+      return { d: [Math.cos(a) * Math.cos(el), Math.sin(el) * 0.9, Math.sin(a) * Math.cos(el) * 1.2 - 0.3], dist: 1.6 + r() * 9, delay: r() * 0.35, rot: [r() * 6, r() * 6, r() * 6], sp: [(r() - 0.5) * 0.8, (r() - 0.5) * 0.8, (r() - 0.5) * 0.5], s: 0.55 + r() * 0.4, drift: [(r() - 0.5) * 0.25, (r() - 0.5) * 0.18] };
     });
   }, []);
   useMemo(() => { field.material.userData.setRoast(1); field.material.userData.uniforms.uCrack.value = 1; burst.uniforms.uT0.value = T_SPLIT; burst.uniforms.uPower.value = 7; burst.uniforms.uLife.value = 3.4; }, [field, burst]);
