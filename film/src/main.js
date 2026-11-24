@@ -8,8 +8,9 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { GradeShader, smooth, clamp } from './shared.js';
 import * as s1 from './scenes/s1_plantation.js';
 import * as s2 from './scenes/s2_harvest.js';
+import * as s3 from './scenes/s3_sorting.js';
 
-const SCENES = [s1, s2];           // S3..S8 added in later stages
+const SCENES = [s1, s2, s3];       // S4..S8 added in later stages
 const W = 720, H = 1280;           // 9:16 master
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(1); renderer.setSize(W, H);
