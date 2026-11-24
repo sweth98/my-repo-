@@ -29,7 +29,7 @@ Contacts: Clay returned only one named person on this free plan (see below). For
 | Company | HQ | Size | LinkedIn |
 |---|---|---|---|
 | Great Learning | Bengaluru | 1,001–5,000 | https://www.linkedin.com/company/great-learning |
-| Intellipaat | Bengaluru | 501–1,000 | https://www.linkedin.com/company/intellipaat-software-solutions |
+| Intellipaat | Bengaluru | 501–1,000 (PitchBook suggests ~200; unverified) | https://www.linkedin.com/company/intellipaat-software-solutions |
 | Edureka | Bengaluru | 501–1,000 | https://www.linkedin.com/company/edureka |
 | Revature | Reston / Chennai | 1,001–5,000 | https://www.linkedin.com/company/revature |
 | NIIT MTS | Atlanta (India roots) | 1,001–5,000 | https://www.linkedin.com/company/niitmts |
@@ -80,7 +80,7 @@ Subject: `{{company}} + AI inside your firewall?`
 > Hi {{first}},
 > I noticed {{trigger: hiring for X / new online programme / new campus / AI announcement}}. Teams in your position often hit the same wall: AI course-building tools are useful, but student and training data can't leave the network.
 > CanPlus is a Canvas-based LMS deployed on your own servers or private cloud. AI course builder and study assistant run entirely inside your network. 100% data ownership.
-> I'd like to offer a **free 30-day private pilot** for one department or one course, set up by our team. Worth a 20-minute look this week?
+> I'd like to offer a **30-day private pilot** (fee credited toward any annual contract) for one department or one course, set up by our team. Worth a 20-minute look this week?
 
 **Touch 4 – Day 3, LinkedIn voice note or short Loom (60s)**
 Walk through the AI course builder on a sample course. Personalize the first 5 seconds with their name and institution.
