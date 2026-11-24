@@ -1,0 +1,11 @@
+import Scene01 from './Scene01_Origin';
+import Scene02 from './Scene02_Harvest';
+import Scene03 from './Scene03_Processing';
+import Scene04 from './Scene04_GreenBean';
+import Scene05 from './Scene05_Roast';
+import Scene06 from './Scene06_Transformation';
+import Scene07 from './Scene07_Grind';
+import Scene08 from './Scene08_Brew';
+import Scene09 from './Scene09_Cup';
+import Scene10 from './Scene10_Circle';
+export const SCENE_COMPONENTS = [Scene01, Scene02, Scene03, Scene04, Scene05, Scene06, Scene07, Scene08, Scene09, Scene10];
